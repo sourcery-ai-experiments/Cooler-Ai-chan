@@ -13,7 +13,7 @@ async def create_embed_with_image(title, url):
 
 async def create_slot_machine_embed(ctx, display, result_message, all_in_message=None):
     embed = discord.Embed(title="Slot Machine", color=discord.Color.blue())
-    embed.add_field(name="Reels", value=f"```\n{display}\n```", inline=False)
+    embed.add_field(name="Reels", value=display, inline=False)
     embed.add_field(name="Result", value=result_message, inline=False)
     if all_in_message:
         embed.add_field(name="All In", value=all_in_message, inline=False)
