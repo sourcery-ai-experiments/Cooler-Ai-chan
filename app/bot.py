@@ -6,26 +6,41 @@ from app.utils.logger import logger
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
+intents.messages = True
+intents.guilds = True
 
-
-bot = commands.Bot(command_prefix='+', intents=discord.Intents.all())
-
+bot = commands.Bot(command_prefix=Config.PREFIX, intents=intents)
 
 @bot.event
 async def on_ready():
     logger.info("------")
     logger.info("Cooler AI-Chan is Up and ready!")
+    
 
     try:
         await bot.tree.sync(guild=discord.Object(id=Config.GUILD_ID))
         logger.debug("Commands synced successfully!")
     except Exception as e:
         logger.error(f"Failed to sync commands: {e}")
+        
 
 async def load_cogs():
-    for filename in os.listdir('./app/cogs'):
-        if filename.endswith('.py') and filename != '__init__.py':
-            await bot.load_extension(f'app.cogs.{filename[:-3]}')
+    cogs_loaded = []
+    for root, dirs, files in os.walk('./app'):
+        for filename in files:
+            if filename.endswith('_cog.py'):
+                relative_path = os.path.relpath(root, './app').replace(os.path.sep, '.')
+                module_name = f'app.{relative_path}.{filename[:-3]}' if relative_path != '.' else f'app.{filename[:-3]}'
+                try:
+                    await bot.load_extension(module_name)
+                    cogs_loaded.append(module_name)
+                except Exception as e:
+                    logger.error(f"Failed to load cog {module_name}: {e}")
+                    
+
+    logger.info("Loaded cogs: " + ", ".join(cogs_loaded))
+    
 
 async def main():
     async with bot:

@@ -11,11 +11,5 @@ class Moderation(commands.Cog):
         await member.ban(reason=reason)
         await ctx.send(f'Banned {member.mention}')
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if 'badword' in message.content:
-            await message.delete()
-            await message.channel.send(f'{message.author.mention}, watch your language!')
-
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
