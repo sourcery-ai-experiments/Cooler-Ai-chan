@@ -16,7 +16,7 @@ class AICommands(commands.Cog):
     
 
 
-    @commands.command(name='ask')
+    @commands.command(name='ask', help="Ask a question to the AI.")
     async def ask(self, ctx, *, question):
         try:
             logger.debug(f"------- \nCommand ASK used by user {ctx.author.name}")
@@ -30,7 +30,7 @@ class AICommands(commands.Cog):
         
     
 
-    @commands.command()
+    @commands.command(name='chat', help="Chat with the AI.")
     async def chat(self, ctx, *, question: str):
         try:
             logger.debug(f"------- \nCommand CHAT used by user {ctx.author.name}")

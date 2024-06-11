@@ -3,6 +3,8 @@ from discord.ext import commands
 from app.services.database_service import DatabaseService
 
 class DatabaseModule(commands.Cog):
+    """Pls do not mess with it
+    """
     def __init__(self, bot):
         self.bot = bot
         self.database = DatabaseService()

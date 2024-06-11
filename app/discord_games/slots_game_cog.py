@@ -10,7 +10,7 @@ class SlotsGame(commands.Cog):
         self.database = DatabaseService()
         self.gambling_service = GamblingService()
 
-    @commands.command(name='slotsss')
+    @commands.command(name='slots')
     async def slot_machine(self, ctx, number: str):
         try:
             if number.lower() in {"allin", "max"}:
@@ -37,7 +37,8 @@ class SlotsGame(commands.Cog):
         try:
             # Deduct the points first
             level_up, level_down = self.database.add_exp(ctx.message.author.id, -amount)
-
+            print(f"Level up after first check: {level_up}")
+            print(f"Level down after first check: {level_down}")
             emotes = [str(e) for e in ctx.guild.emojis if not e.animated]
             emotes = emotes[:max(len(emotes) - 40, 1)]
 
@@ -47,8 +48,9 @@ class SlotsGame(commands.Cog):
                 await ctx.send("Not enough emotes available to play the slot machine. Using numbers instead.")
                 emotes = [str(i) for i in range(1, 10)]
 
+            # Create reels with possible duplicates
             random.shuffle(emotes)
-            reels = random.sample(emotes, 9)
+            reels = random.choices(emotes, k=9)
 
             display = f"    {reels[0]} | {reels[1]} | {reels[2]}\n {reels[3]} | {reels[4]} | {reels[5]}  \n    {reels[6]} | {reels[7]} | {reels[8]}"
             selected_reels = reels[3:6]
@@ -56,6 +58,7 @@ class SlotsGame(commands.Cog):
             result_message = "(⌯˃̶᷄ ﹏ ˂̶᷄⌯) No match! Maybe better spins next time?"
             all_in_message = None
 
+            # Determine the reward
             if len(set(selected_reels)) == 1:
                 amount_won = amount * 10
                 result_message = f"(✯◡✯) **!JACKPOT!** (✯◡✯)\nYou won {amount_won} Exp!"
@@ -76,16 +79,27 @@ class SlotsGame(commands.Cog):
 
             # Add the points back if the user wins
             if len(set(selected_reels)) <= 2:
-                self.database.add_exp(ctx.message.author.id, amount_won)
+                level_up_after_win, _ = self.database.add_exp(ctx.message.author.id, amount_won)
+                print(f"Level up after second check: {level_up_after_win}")
+                if level_up_after_win:
+                    await ctx.send(await level_up_message(ctx))
+            else:
+                # Check for level down if the user loses
+                if level_down:
+                    await ctx.send(await level_down_message(ctx))
 
-            # Check for level change after adjusting points
+            # Check for initial level change after adjusting points
             if level_up:
+                print("Level up detected initially!")  # Debugging
                 await ctx.send(await level_up_message(ctx))
-            elif level_down:
-                await ctx.send(await level_down_message(ctx))
+                
         except Exception as e:
             # In case of error, return the deducted points
             self.database.add_exp(ctx.message.author.id, amount)
             await ctx.send(f"An error occurred: {str(e)}. Your points have been returned.")
+
+
+
+
 async def setup(bot):
     await bot.add_cog(SlotsGame(bot))
