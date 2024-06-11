@@ -49,7 +49,7 @@ class CommandHandlingService(commands.Cog):
                     await message.channel.send(f"🎉 Level Up! 🎉 Congratulations! {message.author.mention}! You leveled up from babbling so much!")
             self.previous_author = message.author.id
 
-
+        
         # Bad word filter
         if 'badword' in message.content:
             await message.delete()
