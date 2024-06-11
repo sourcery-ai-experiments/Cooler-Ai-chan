@@ -25,6 +25,15 @@ async def on_ready():
     except Exception as e:
         logger.error(f"Failed to sync commands: {e}")
         
+@bot.event
+async def on_command(ctx):
+    user = ctx.author
+    command = ctx.command
+    channel = ctx.channel
+    params = {param: value for param, value in ctx.kwargs.items()}
+    params.update({param: value for param, value in zip(command.clean_params, ctx.args[2:])})
+    logger.info(f"Command '{command}' used by '{user}' in channel '{channel}' with params: {params}")
+
 
 async def load_cogs():
     cogs_loaded = []
