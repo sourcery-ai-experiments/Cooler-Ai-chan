@@ -9,6 +9,7 @@ intents.message_content = True
 intents.members = True
 intents.messages = True
 intents.guilds = True
+intents.presences = True  # Enable the presences intent
 
 bot = commands.Bot(command_prefix=Config.PREFIX, intents=intents)
 
