@@ -4,13 +4,13 @@ from app.utils.logger import logger
 
 class GroqService:
 
-    async def ask_question(self, author, user_message):
+    async def ask_question(self, author, author_id, user_message):
         try:
             # Gluing discord username to the message
             logger.info(f"Question: {user_message}")
             messages = [
                 {"role": "system", "content": basic_prompt},
-                {"role": "user", "content": f"{author}: {user_message}"},
+                {"role": "user", "content": f"{author} ({author_id}): {user_message}"},
             ]
             #logger.debug(f"Messages: {messages}")
             return messages
@@ -26,11 +26,13 @@ class GroqService:
 
             chat_messages = []
             previous_author = None
+            previous_author_id = None
             concatenated_content = ""
 
             for message in reversed(messages):
                 author = message.author
                 current_author = author.nick if author.nick else author.name
+                author_id = message.author.id
                 #logger.debug(f"Processing message from {current_author}: {message.content}")
 
                 if current_author == previous_author:
@@ -39,17 +41,18 @@ class GroqService:
                     if concatenated_content:
                         chat_messages.append({
                             "role": "assistant" if previous_author in ["AI-Chan", "Kiki_chan"] else "user",
-                            "content": f"{previous_author}: {concatenated_content}"
+                            "content": f"{previous_author} ({previous_author_id}): {concatenated_content}"
                         })
 
                     previous_author = current_author
+                    previous_author_id = author_id
                     concatenated_content = message.content
 
             # Add the last concatenated message
             if concatenated_content:
                 chat_messages.append({
                     "role": "assistant" if previous_author in ["AI-Chan", "Kiki_chan"] else "user",
-                    "content": f"{previous_author}: {concatenated_content}"
+                    "content": f"{previous_author} ({previous_author_id}): {concatenated_content}"
                 })
 
             # Insert the basic prompt and history prompt at the beginning
@@ -57,11 +60,18 @@ class GroqService:
             chat_messages.insert(1, {"role": "system", "content": history_prompt})
 
             # Add the final instruction prompt and user message at the end
-            chat_messages.extend([
-                {"role": "user", "content": "That was all history. Take a deep breath, relax a little. "
-                                            "Think about history you just got, and using this knowledge, try to answer the next question as best as you can."},
-                {"role": "user", "content": f"{context.author.name}: {user_message}"}
-            ])
+            chat_messages.append({
+                "role": "user", 
+                "content": "That was all history. Take a deep breath, relax a little. "
+                           "Think about the history you just got. To mention someone, use their ID like this: <@user_id>. "
+                           "Using this knowledge, try to answer the next question as best as you can."
+            })
+            # Use the user ID for the final message
+            author_id = context.author.id
+            chat_messages.append({
+                "role": "user", 
+                "content": f"{context.author.name} ({author_id}): {user_message}"
+            })
 
             #logger.debug(f"Final chat messages: {chat_messages}")
             return chat_messages

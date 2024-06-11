@@ -4,10 +4,11 @@ from discord.utils import get
 from discord.ext.commands import has_permissions, Bot, Context
 
 class ManagementModule(commands.Cog):
+    """Management module for Ai-Chan. Commands for managing the server."""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.command(name='exile', help='Kicks someone!')
+    @commands.command(name='exile', help='Kicks someone! +exile @user')
     @commands.guild_only()
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
@@ -21,7 +22,7 @@ class ManagementModule(commands.Cog):
         await user.kick(reason=None)
         await ctx.send(f"{user.name}#{user.discriminator} has been exiled!")
 
-    @commands.command(name='clear', help='Deletes specified amount of messages')
+    @commands.command(name='clear', help='Deletes specified amount of messages. +clear number')
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
@@ -31,11 +32,12 @@ class ManagementModule(commands.Cog):
             return
 
         amount = int(amount)
-        messages = await ctx.channel.history(limit=amount + 1).flatten()
+        # Fetch the messages
+        messages = [message async for message in ctx.channel.history(limit=amount + 1)]
         await ctx.channel.delete_messages(messages)
         await ctx.send(f"Deleted {amount} messages", delete_after=5)
 
-    @commands.command(name='say', help='Says something as Ai-Chan.')
+    @commands.command(name='say', help='Says something as Ai-Chan. +say text')
     async def say(self, ctx: Context, *, text: str):
         await ctx.message.delete()
         await ctx.send(text)
