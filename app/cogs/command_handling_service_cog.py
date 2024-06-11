@@ -35,11 +35,13 @@ class CommandHandlingService(commands.Cog):
                 logger.error("Emote 'hi' not found in the server.")
 
         # Lottery reaction
-        if random.randint(1, 1000) == 1:
+        if random.randint(1, 100000) == 1:
             emote = random.choice(message.guild.emojis)
             await message.add_reaction(emote)
-            await message.channel.send(f"{message.author.mention}!! You just won a lottery with 0.001% chance! +10 exp for you for free!")
-            self.database.add_exp(message.author.id, 10)
+            exp_gain = random.randint(10, 100)
+            await message.channel.send(f"{message.author.mention}!! You just won a lottery with 0.001% chance! +{exp_gain} exp for you for free!")
+            self.database.add_exp(message.author.id, exp_gain)
+
 
         # Level up for chatting
         if os.path.exists(self.database.path):
