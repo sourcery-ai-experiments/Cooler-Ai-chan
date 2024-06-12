@@ -5,7 +5,10 @@ from app.utils.logger import logger
 
 class DatabaseService:
     def __init__(self):
-        data_directory = os.path.join(os.path.dirname(__file__), "data")
+        # Get the current working directory where the app is run
+        current_working_directory = os.getcwd()
+        # Construct the path relative to the current working directory
+        data_directory = os.path.join(current_working_directory, "app", "persistent_data", "database")
 
         if not os.path.exists(data_directory):
             os.makedirs(data_directory)
