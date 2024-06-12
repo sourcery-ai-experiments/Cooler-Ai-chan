@@ -2,10 +2,13 @@ import discord
 from discord.ext import commands
 #from app.config import Config
 from app.utils.logger import logger
+from app.cogs.command_handling_service_cog import CommandHandlingService
 
 class General(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.command_handling_service = CommandHandlingService(bot)
+        
 
     @commands.command(name='sync_commands')
     async def sync_commands(self, ctx):
@@ -35,12 +38,15 @@ class General(commands.Cog):
         else:
             await ctx.send("You do not have permission to use this command.")
 
-    @commands.command(name='shutdown')
-    @commands.is_owner()
+    @commands.command(name='shutdown', hidden=True)
     async def shutdown(self, ctx):
+        if ctx.author.id != 240561468330737665:
+            await ctx.send("You do not have permission to shut down the bot.")
+            return
+        
         await ctx.send("Shutting down...")
-        logger.info("Bot is shutting down.")
         await self.bot.close()
+        logger.info("Bot shut down gracefully, state saved.")
 
 async def setup(bot):
     await bot.add_cog(General(bot))
