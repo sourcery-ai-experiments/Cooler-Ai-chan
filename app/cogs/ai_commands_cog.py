@@ -16,7 +16,7 @@ class AICommands(commands.Cog):
     async def ask(self, ctx, *, question):
         try:
             logger.debug(f"------- \nCommand ASK used by user {ctx.author.name}")
-            messages = await self.groq_service.ask_question(ctx.author.name, question)
+            messages = await self.groq_service.ask_question(ctx.author.name, ctx.author.id, question)
             response, _, _, _ = send_to_groq(messages)
             logger.debug(f"Sending response: {response}\n-------------")
             await ctx.send(response)
