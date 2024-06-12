@@ -33,7 +33,7 @@ class UrbanModule(commands.Cog):
 
                     embed = self.get_urban_embed(term, results)
                     message = await ctx.send(embed=embed)
-                    custom_emoji = "<:kiana:1093963437522038936>"
+                    custom_emoji = "<:kiana:496046467090219040>"
 
                     try:
                         await message.add_reaction(custom_emoji)
