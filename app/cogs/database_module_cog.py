@@ -33,7 +33,7 @@ class DatabaseModule(commands.Cog):
             level_up = self.database.add_exp(ctx.author.id, amount)
             await ctx.send(f"Added {amount} exp.")
             if level_up:
-                await ctx.send(f"Congratulations! You've leveled up to the next level.")
+                await ctx.send("Congratulations! You've leveled up to the next level.")
         except ValueError:
             await ctx.send("Invalid number.")
 
