@@ -29,7 +29,7 @@ async def load_cogs():
     cogs_loaded = []
     for root, dirs, files in os.walk('./app'):
         for filename in files:
-            if filename.endswith('_cog.py'):
+            if filename.endswith('_cog.py') or filename == 'help_cog.py':
                 relative_path = os.path.relpath(root, './app').replace(os.path.sep, '.')
                 module_name = f'app.{relative_path}.{filename[:-3]}' if relative_path != '.' else f'app.{filename[:-3]}'
                 try:
@@ -37,10 +37,7 @@ async def load_cogs():
                     cogs_loaded.append(module_name)
                 except Exception as e:
                     logger.error(f"Failed to load cog {module_name}: {e}")
-                    
-
     logger.info("Loaded cogs: " + ", ".join(cogs_loaded))
-    
 
 async def main():
     async with bot:

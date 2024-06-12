@@ -43,17 +43,20 @@ class CommandHandlingService(commands.Cog):
 
         # Level up for chatting
         if os.path.exists(self.database.path):
-            if self.previous_author != message.author.id and self.database.add_exp(message.author.id, 1):
-                await message.channel.send(f"Congratulations {message.author.mention}! You leveled up from chatting!")
+            if self.previous_author != message.author.id:
+                level_up, _ = self.database.add_exp(message.author.id, 1)
+                if level_up:
+                    await message.channel.send(f"🎉 Level Up! 🎉 Congratulations! {message.author.mention}! You leveled up from babbling so much!")
             self.previous_author = message.author.id
 
+        
         # Bad word filter
         if 'badword' in message.content:
             await message.delete()
             await message.channel.send(f'{message.author.mention}, watch your language!')
 
         # Process commands
-        logger.debug("Processing commands for message: ", message.content)
+        logger.debug(f"Processing commands for message: {message.content}")
         await self.bot.process_commands(message)
 
     @commands.Cog.listener()
