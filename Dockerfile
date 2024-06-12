@@ -1,34 +1,35 @@
-# Set the base image to Alpine Linux
-FROM alpine:3.17.3
+# Use an official Python runtime as a parent image
+FROM python:3.10-slim
 
-# Update package list and install bash, Python, and required dependencies
-RUN apk update && \
-    apk add --no-cache bash python3 py3-pip && \
-    apk add build-base python3-dev libffi-dev
+# Set environment variables that persist in the container
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Copy your aichan application and other necessary files
-COPY ./app /app
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc libc6-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Add this line to copy the .env file if required (not needed if volume is mapped)
-COPY .env /app/.env
-
-# Set the default shell to bash
-SHELL ["/bin/bash", "-c"]
-
-# Set the working directory to /app
+# Set the working directory to /app. This is the root of your project inside the container.
 WORKDIR /app
 
-# Copy the requirements.txt file into the container
-COPY requirements.txt /app/
+# Set environment variable to ensure Python recognizes the correct root for imports
+ENV PYTHONPATH=/app
+
+# Copy the requirements.txt first to leverage Docker cache
+COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the startup script into the container
-COPY startup.sh /startup.sh
+# Copy your entire app folder into /app, maintaining the structure
+COPY . .
 
-# Give execution rights on the startup script
-RUN chmod +x /startup.sh
+# Create the log directory
+RUN mkdir -p /app/persistent_data/logs
 
-# Use the startup script as the entry point
-ENTRYPOINT ["/startup.sh"]
+# Adjust PYTHONPATH if necessary
+ENV PYTHONPATH=/app
+
+# Adjust the CMD to reflect the new structure and execute the app
+CMD ["python", "-m", "app.main"]

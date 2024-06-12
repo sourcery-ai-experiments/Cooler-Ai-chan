@@ -3,14 +3,14 @@ version: '3.7'
 services:
   cooler-ai-chan:
     build: .
+    restart: always
     container_name: cooler-ai-chan
-    volumes:
-      - .:/app  # Maps the app directory on your host to /app in your container
-      - ./persistent_data:/persistent_data
     networks:
       - external-containers
+    volumes:
+      - .:/app  # Maps the app directory on your host to /app in your container
+      - ./persistent_data:/app/persistent_data  # Mounts the persistent_data folder
 
-    
 networks:
   external-containers:
     external: true

@@ -29,6 +29,12 @@ class DatabaseService:
                 total_exp INTEGER DEFAULT 0,
                 level INTEGER DEFAULT 1
             )""")
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS pictures (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                type TEXT,
+                link TEXT
+            )""")
             # Check if 'total_exp' column exists
             cursor.execute("PRAGMA table_info(users)")
             columns = [col[1] for col in cursor.fetchall()]

@@ -1,5 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
+import os
 import requests
 from app.config import Config
 import datetime
@@ -32,19 +33,24 @@ def setup_logger():
     logger = logging.getLogger('discord_bot')
     logger.setLevel(logging.DEBUG)
 
+    # Ensure the log directory exists
+    log_dir = os.path.dirname(Config.LOG_FILE_PATH)
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
     # File handler
     file_handler = RotatingFileHandler(Config.LOG_FILE_PATH, maxBytes=1024*1024*5, backupCount=2)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
     # Stream handler (console) with color
-    console_handler = colorlog.StreamHandler()  
+    console_handler = colorlog.StreamHandler()
     console_handler.setLevel(logging.DEBUG)
     console_handler.setFormatter(colorlog.ColoredFormatter(
-        '%(log_color)s%(levelname)s: %(message)s',  # Removed '%(asctime)s:' and '%(name)s:'
+        '%(log_color)s%(levelname)s: %(message)s',
         log_colors={
             'DEBUG': 'green',
-            'INFO': 'light_blue', 
+            'INFO': 'light_blue',
             'WARNING': 'yellow',
             'ERROR': 'red',
             'CRITICAL': 'bold_red',
