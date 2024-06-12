@@ -30,3 +30,30 @@ async def create_rps101_embed(ctx, user_choice, aichan_choice, result_message, b
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     return embed
 
+def get_urban_embed(term, results):
+    embed = discord.Embed(
+        title=f"Most voted Urban Dictionary definitions for \"{term}\"",
+        color=discord.Color.blue()
+    )
+
+    for result in results:
+        word = result.get('word', 'Unknown')
+        definition = result.get('definition', 'No definition')
+        example = result.get('example', 'No example')
+        author = result.get('author', 'Unknown')
+        permalink = result.get('permalink', '')
+
+        # Create the full field value
+        field_value = f"{definition}\n\n*Example:* {example}\n*Author:* {author}\n*Link:* [Click here]({permalink})"
+
+        # Truncate the field value if it's too long
+        if len(field_value) > 1024:
+            field_value = field_value[:1021] + '...'
+
+        embed.add_field(
+            name=word,
+            value=field_value,
+            inline=False
+        )
+
+    return embed
