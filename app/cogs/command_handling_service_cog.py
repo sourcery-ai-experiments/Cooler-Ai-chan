@@ -16,7 +16,7 @@ class CommandHandlingService(commands.Cog):
         self.previous_author = None
         self.log_file_index = 0
         self.max_messages_per_file = 1000  # Example threshold
-        self.log_directory = "app/logs/message_logs"
+        self.log_directory = "app/persistent_data/logs/message_logs"
         os.makedirs(self.log_directory, exist_ok=True)
         self.current_log_file = self.get_latest_log_file()
         logger.info("CommandHandlingService initialized")
