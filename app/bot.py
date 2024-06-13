@@ -3,7 +3,7 @@ from discord.ext import commands
 from app.config import Config
 import os
 from app.utils.logger import logger
-
+from app.discord_games.tic_tac_toe.tic_tac_toe import start_tic_tac_toc
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -12,12 +12,15 @@ intents.guilds = True
 intents.presences = True  # Enable the presences intent
 
 bot = commands.Bot(command_prefix=Config.PREFIX, intents=intents)
+bot.bot_id = None  # Initialize bot_id
 
 @bot.event
 async def on_ready():
     logger.info("------")
     logger.info("Cooler AI-Chan is Up and ready!")
     
+    bot.bot_id = bot.user.id  # Set bot's user ID
+    logger.info(f"Bot ID is {bot.bot_id}")
 
     try:
         await bot.tree.sync(guild=discord.Object(id=Config.GUILD_ID))
@@ -53,6 +56,14 @@ async def main():
     async with bot:
         await load_cogs()
         await bot.start(Config.DISCORD_TOKEN)
+
+@bot.tree.command(name="tic_tac_toe")
+async def tic_tac_toe(interaction: discord.Interaction, difficulty: str):
+    bot.loop.create_task(start_tic_tac_toc(interaction, difficulty))
+
+@bot.tree.command(name="ping", description="Ping the bot")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("Pong!")
 
 if __name__ == "__main__":
     import asyncio

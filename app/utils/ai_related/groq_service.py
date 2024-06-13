@@ -21,7 +21,7 @@ class GroqService:
     async def assemble_chat_history(self, context, user_message):
         try:
             logger.info(f"Question: {user_message}")
-            messages = [message async for message in context.channel.history(limit=50)]
+            messages = [message async for message in context.channel.history(limit=30)]
             #logger.debug(f"Fetched messages: {[message.content for message in messages]}")
 
             chat_messages = []

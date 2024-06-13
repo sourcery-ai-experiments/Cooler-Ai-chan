@@ -74,7 +74,7 @@ class CommandHandlingService(commands.Cog):
     async def on_message(self, message):
         if message.author.bot:
             return
-        
+
         # Check if the message is a command
         if message.content.startswith(Config.PREFIX):
             return
@@ -100,11 +100,13 @@ class CommandHandlingService(commands.Cog):
 
         # Level up for chatting
         if os.path.exists(self.database.path):
-            if self.previous_author != message.author.id:
+            if self.previous_author not in [message.author.id, self.bot.bot_id]:
                 level_up, _ = self.database.add_exp(message.author.id, 1)
                 if level_up:
                     await message.channel.send(f"🎉 Level Up! 🎉 Congratulations! {message.author.mention}! You leveled up from babbling so much!")
             self.previous_author = message.author.id
+
+
 
         # Bad word filter
         if 'badword' in message.content:
