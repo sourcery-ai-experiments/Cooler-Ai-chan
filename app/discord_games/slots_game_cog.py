@@ -57,24 +57,29 @@ class SlotsGame(commands.Cog):
 
             result_message = "(⌯˃̶᷄ ﹏ ˂̶᷄⌯) No match! Maybe better spins next time?"
             all_in_message = None
-
+            amount_won = 0
             # Determine the reward
             if len(set(selected_reels)) == 1:
-                amount_won = amount * 10
+                amount_won = amount * 3
                 result_message = f"(✯◡✯) **!JACKPOT!** (✯◡✯)\nYou won {amount_won} Exp!"
                 if number.lower() in {"allin", "max"}:
+                    amount_won = amount * 10
                     all_in_message = f"(✯◡✯) **ALL IN JACKPOT!** (✯◡✯)\nYou risked it all and won {amount_won} Exp!"
             elif len(set(selected_reels)) == 2:
-                amount_won = amount * 4
+                amount_won = amount * 2
                 result_message = f"(￢‿￢ ) **!Two of a Kind!** (￢‿￢ ) \nYou won {amount_won} Exp!"
                 if number.lower() in {"allin", "max"}:
+                    amount_won = amount * 5
                     all_in_message = f"(￢‿￢ ) **ALL IN Two of a Kind!** (￢‿￢ ) \nYou risked it all and won {amount_won} Exp!"
             else:
                 if number.lower() in {"allin", "max"}:
                     all_in_message = f"(⌯˃̶᷄ ﹏ ˂̶᷄⌯) **ALL IN No Match!** (⌯˃̶᷄﹏ ˂̶᷄⌯)\nYou risked it all and lost everything!"
 
+            import discord
+            # set color of embed
+            color = discord.Color.green() if amount_won > 0 else discord.Color.red()
             # Create and send the embed
-            embed = await create_slot_machine_embed(ctx, display, result_message, all_in_message)
+            embed = await create_slot_machine_embed(ctx, display, result_message, color, all_in_message)
             await ctx.send(embed=embed)
 
             # Add the points back if the user wins

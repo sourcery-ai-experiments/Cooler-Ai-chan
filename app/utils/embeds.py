@@ -11,8 +11,8 @@ async def create_embed_with_image(title, url):
     embed.set_image(url=image_url)
     return embed
 
-async def create_slot_machine_embed(ctx, display, result_message, all_in_message=None):
-    embed = discord.Embed(title="Slot Machine", color=discord.Color.blue())
+async def create_slot_machine_embed(ctx, display, result_message, color, all_in_message=None):
+    embed = discord.Embed(title="Slot Machine", color=color)
     embed.add_field(name="Reels", value=display, inline=False)
     embed.add_field(name="Result", value=result_message, inline=False)
     if all_in_message:
@@ -21,11 +21,16 @@ async def create_slot_machine_embed(ctx, display, result_message, all_in_message
     return embed
 
 
-async def create_rps101_embed(ctx, user_choice, aichan_choice, result_message, bet, color):
+async def create_rps101_embed(ctx, user_choice, aichan_choice, result_message, bet, color, win_amount):
     embed = discord.Embed(title="RPS101 Game Result", color=color)
     embed.add_field(name="You", value=user_choice, inline=True)
     embed.add_field(name="Ai-chan", value=aichan_choice, inline=True)
-    embed.add_field(name="Bet", value=bet, inline=True)
+
+    if win_amount > 0 : 
+        embed.add_field(name="Won | Bet", value=f"{win_amount} | {bet}", inline=True) 
+    else: 
+        embed.add_field(name="Bet", value=bet, inline=True)
+
     embed.add_field(name="Result", value=result_message, inline=False)
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     return embed
