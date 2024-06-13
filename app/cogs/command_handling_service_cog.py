@@ -13,13 +13,14 @@ class CommandHandlingService(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.database = DatabaseService()
-        self.previous_author = None
+        #self.previous_author = None
         self.log_file_index = 0
         self.max_messages_per_file = 1000  # Example threshold
         self.log_directory = "app/persistent_data/logs/message_logs"
         os.makedirs(self.log_directory, exist_ok=True)
         self.current_log_file = self.get_latest_log_file()
         logger.info("CommandHandlingService initialized")
+        self.previous_author = {}  # Dictionary to track the last author per channel
 
     def get_new_log_file(self):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -100,11 +101,20 @@ class CommandHandlingService(commands.Cog):
 
         # Level up for chatting
         if os.path.exists(self.database.path):
-            if self.previous_author not in [message.author.id, self.bot.bot_id]:
-                level_up, _ = self.database.add_exp(message.author.id, 1)
+            channel_id = message.channel.id
+            author_id = message.author.id
+
+            if channel_id not in self.previous_author:
+                self.previous_author[channel_id] = None  # Initialize if not present
+
+            if self.previous_author[channel_id] not in [author_id, self.bot.bot_id]:
+                level_up, _ = self.database.add_exp(author_id, 1)
                 if level_up:
                     await message.channel.send(f"🎉 Level Up! 🎉 Congratulations! {message.author.mention}! You leveled up from babbling so much!")
-            self.previous_author = message.author.id
+
+            self.previous_author[channel_id] = author_id
+        logger.info(f"Message from {message.author} in {message.channel}: {message.content}")
+        logger.info(f"previous_author: {self.previous_author}")
 
 
 
