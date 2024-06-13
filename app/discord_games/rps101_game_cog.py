@@ -65,8 +65,11 @@ class RPS101Game(commands.Cog):
                 result_message = ""
                 color = discord.Color.default()
 
+                win_amount = 0
+                
                 if winner.lower() == thing.lower():
                     bet += bet * 2
+                    win_amount = bet
                     level_up, level_down = self.database.add_exp(user_id, bet)
                     result_message = f"🎉 You won! **{winner}** {outcome} **{loser}** 🎉"
                     color = discord.Color.green()
@@ -77,7 +80,7 @@ class RPS101Game(commands.Cog):
                     result_message = "🤝 It's a draw. Better luck next time 🤝"
                     color = discord.Color.orange()
 
-                embed = await create_rps101_embed(ctx, thing, aichan_choice, result_message, initial_bet, color)
+                embed = await create_rps101_embed(ctx, thing, aichan_choice, result_message, initial_bet, color, win_amount)
                 await ctx.send(embed=embed)
 
                 if level_up:

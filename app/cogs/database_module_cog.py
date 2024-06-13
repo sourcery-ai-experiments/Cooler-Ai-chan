@@ -29,11 +29,12 @@ class DatabaseModule(commands.Cog):
     @commands.command(name='addexp')
     async def add_exp(self, ctx, number: str):
         try:
-            amount = int(number)
-            level_up = self.database.add_exp(ctx.author.id, amount)
-            await ctx.send(f"Added {amount} exp.")
-            if level_up:
-                await ctx.send("Congratulations! You've leveled up to the next level.")
+            await ctx.send("HAHA! You wish! Turned off for now!")
+            # amount = int(number)
+            # level_up = self.database.add_exp(ctx.author.id, amount)
+            # await ctx.send(f"Added {amount} exp.")
+            # if level_up:
+            #     await ctx.send("Congratulations! You've leveled up to the next level.")
         except ValueError:
             await ctx.send("Invalid number.")
 

@@ -1,7 +1,6 @@
 import random
 import os
 import json
-import discord
 from discord.ext import commands
 from discord.utils import get
 from app.services.database_service import DatabaseService
@@ -13,7 +12,6 @@ class CommandHandlingService(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.database = DatabaseService()
-        #self.previous_author = None
         self.log_file_index = 0
         self.max_messages_per_file = 1000  # Example threshold
         self.log_directory = "app/persistent_data/logs/message_logs"
@@ -110,7 +108,7 @@ class CommandHandlingService(commands.Cog):
             if self.previous_author[channel_id] not in [author_id, self.bot.bot_id]:
                 level_up, _ = self.database.add_exp(author_id, 1)
                 if level_up:
-                    await message.channel.send(f"🎉 Level Up! 🎉 Congratulations! {message.author.mention}! You leveled up from babbling so much!")
+                    await message.channel.send(f"🎉 Level Up! 🎉 Congratulations! {message.author.mention}! You leveled up from babbling so much!\n GRIND GRIND GRIND")
 
             self.previous_author[channel_id] = author_id
         logger.info(f"Message from {message.author} in {message.channel}: {message.content}")

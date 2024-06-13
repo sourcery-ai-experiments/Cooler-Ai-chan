@@ -32,7 +32,7 @@ class RussianGame(commands.Cog):
             def check(reaction, user):
                 return str(reaction.emoji) == '💀' and reaction.message.id == message.id
 
-            timer = 120
+            timer = 45
             while timer > 0:
                 try:
                     reaction, user = await self.bot.wait_for('reaction_add', timeout=1, check=check)
