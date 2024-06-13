@@ -3,7 +3,7 @@ from discord.ext import commands
 from app.config import Config
 import os
 from app.utils.logger import logger
-from app.discord_games.tic_tac_toe.tic_tac_toe import start_tic_tac_toc
+#from app.discord_games.tic_tac_toe.tic_tac_toe import start_tic_tac_toc
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -57,9 +57,9 @@ async def main():
         await load_cogs()
         await bot.start(Config.DISCORD_TOKEN)
 
-@bot.tree.command(name="tic_tac_toe")
-async def tic_tac_toe(interaction: discord.Interaction, difficulty: str):
-    bot.loop.create_task(start_tic_tac_toc(interaction, difficulty))
+#@bot.tree.command(name="tic_tac_toe")
+#async def tic_tac_toe(interaction: discord.Interaction, difficulty: str):
+#    bot.loop.create_task(start_tic_tac_toc(interaction, difficulty))
 
 @bot.tree.command(name="ping", description="Ping the bot")
 async def ping(interaction: discord.Interaction):
