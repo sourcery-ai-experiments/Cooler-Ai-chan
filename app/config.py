@@ -11,3 +11,4 @@ class Config:
     LOG_FILE_PATH = os.getenv('LOG_FILE_PATH', 'app/persistent_data/logs/discord_bot.log')
     LOKI_URL = os.getenv('LOKI_URL', 'http://localhost:3100')
     PREFIX = os.getenv('PREFIX', '+')
+    ENVIROMENT = os.getenv('ENVIROMENT', 'production')
