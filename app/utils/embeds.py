@@ -11,12 +11,19 @@ async def create_embed_with_image(title, url):
     embed.set_image(url=image_url)
     return embed
 
-async def create_slot_machine_embed(ctx, display, result_message, color, all_in_message=None):
-    embed = discord.Embed(title="Slot Machine", color=color)
+async def create_slot_machine_embed(ctx, display, messages, exp_message, color, additional_message, multiplier, exp_left):
+    embed = discord.Embed(title="🎰 Slot Machine 🎰", color=color)
     embed.add_field(name="Reels", value=display, inline=False)
-    embed.add_field(name="Result", value=result_message, inline=False)
-    if all_in_message:
-        embed.add_field(name="All In", value=all_in_message, inline=False)
+    if messages:
+        # Join the messages list into a single string with line breaks
+        messages_str = ''.join(messages)
+        embed.add_field(name="Winning combinations", value=messages_str, inline=False)
+    
+    embed.add_field(name="Win", value=exp_message, inline=True)
+    embed.add_field(name="Multiply", value=f"{multiplier}x", inline=True)
+    embed.add_field(name="Exp left", value=exp_left, inline=True)
+    if additional_message:
+        embed.add_field(name="Final", value=additional_message, inline=False)
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
     return embed
 
