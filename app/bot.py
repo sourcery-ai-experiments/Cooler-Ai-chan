@@ -18,9 +18,10 @@ bot.bot_id = None  # Initialize bot_id
 async def on_ready():
     logger.info("------")
     logger.info("Cooler AI-Chan is Up and ready!")
-    
+
     bot.bot_id = bot.user.id  # Set bot's user ID
     logger.info(f"Bot ID is {bot.bot_id}")
+    logger.debug(f"Bot environment is set to {Config.ENVIROMENT}")
 
     try:
         await bot.tree.sync(guild=discord.Object(id=Config.GUILD_ID))

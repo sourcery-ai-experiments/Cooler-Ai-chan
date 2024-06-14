@@ -68,7 +68,7 @@ class RPS101Game(commands.Cog):
                 win_amount = 0
                 
                 if winner.lower() == thing.lower():
-                    bet += bet * 2
+                    bet += bet
                     win_amount = bet
                     level_up, level_down = self.database.add_exp(user_id, bet)
                     result_message = f"🎉 You won! **{winner}** {outcome} **{loser}** 🎉"
