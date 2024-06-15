@@ -211,7 +211,7 @@ class SlotsGame(commands.Cog):
                 self.casino_jar.add_to_jar(ctx.message.author.id, amount)
                 jar_messgage = f"User {ctx.message.author} lost {amount} exp. It was added to the jar.\n Jar now has {self.casino_jar.get_jar_total()} exp."
             else:
-                self.casino_jar.add_winning_combination(ctx.message.author.id, full_win_count, partial_win_count)
+                self.casino_jar.add_winning_combination(ctx.message.author.id, full_win_count, partial_win_count, amount_won)
                 logger.info(f"Adding winning combination for user {ctx.message.author} with full wins: {full_win_count} and partial wins: {partial_win_count}")
             
             # Get the points from the jar if the user wins and the win was jackpot
@@ -296,6 +296,54 @@ class SlotsGame(commands.Cog):
                 embed.add_field(name="Exp", value=f"{loser[1]}", inline=True)
         else:
             embed.add_field(name="\u200b", value="No losers yet", inline=False)
+
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+
+        await ctx.send(embed=embed)
+
+    @commands.command(name='slotsrankingembed')
+    async def show_ranking_embed(self, ctx):
+        top_winners = self.casino_jar.get_top_winners_with_counts()
+        top_losers = self.casino_jar.get_top_losers()
+        winning_combinations = self.casino_jar.get_winning_combination_counts()
+        embed = discord.Embed(title="🎰 Slots Ranking 🎰", color=0xFFD700)
+
+        # Add a section for the winning combinations count
+        winning_combination_str = ""
+        if winning_combinations:
+            for user in winning_combinations:
+                user_name = ctx.guild.get_member(user[0])
+                full_wins = user[1]
+                partial_wins = user[2]
+                total_exp_won = user[3]
+                winning_combination_str += f"**{user_name}** | Full wins: **{full_wins}** | Partial wins: **{partial_wins}** | Total exp: **{total_exp_won} Exp**\n"
+        else:
+            winning_combination_str = "No winning combinations yet"
+        
+        embed.add_field(name="🎉 Winning Combinations 🎉", value=winning_combination_str, inline=False)
+
+        # Add a section for the top jar winners
+        embed.add_field(name="🏆 Top Jar Winners 🏆", value="", inline=False)
+        if top_winners:
+            for winner in top_winners:
+                embed.add_field(name="User", value=f"{ctx.guild.get_member(winner[0])}", inline=True)
+                embed.add_field(name="Jar Wins", value=f"{winner[2]}", inline=True)
+                embed.add_field(name="Exp", value=f"{winner[1]}", inline=True)
+        else:
+            embed.add_field(name="SAD", value="No winners yet", inline=False)
+
+        # Add a section for the top losers
+        top_losers_str = ""
+        if top_losers:
+            for loser in top_losers:
+                user_name = ctx.guild.get_member(loser[0])
+                losses = loser[2]
+                exp = loser[1]
+                top_losers_str += f"**{user_name}** | Losses: **{losses}** | Exp: **{exp} Exp**\n"
+        else:
+            top_losers_str = "No losers yet"
+        
+        embed.add_field(name="😭 Top Losers 😭", value=top_losers_str, inline=False)
 
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
 

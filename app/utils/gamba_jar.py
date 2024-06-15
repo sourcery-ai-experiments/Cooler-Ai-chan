@@ -22,15 +22,16 @@ class CasinoJar:
                 user_id INTEGER NOT NULL,
                 points INTEGER,
                 action TEXT,
+                full_wins INTEGER DEFAULT 0,
+                partial_wins INTEGER DEFAULT 0,
+                total_exp_won INTEGER DEFAULT 0,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )""")
-            # Check if columns full_wins and partial_wins exist, if not add them
+            # Check if columns total_exp_won exists, if not add them
             cursor.execute("PRAGMA table_info(jar_history)")
             columns = [info[1] for info in cursor.fetchall()]
-            if 'full_wins' not in columns:
-                cursor.execute("ALTER TABLE jar_history ADD COLUMN full_wins INTEGER DEFAULT 0")
-            if 'partial_wins' not in columns:
-                cursor.execute("ALTER TABLE jar_history ADD COLUMN partial_wins INTEGER DEFAULT 0")
+            if 'total_exp_won' not in columns:
+                cursor.execute("ALTER TABLE jar_history ADD COLUMN total_exp_won INTEGER DEFAULT 0")
             conn.commit()
 
     def add_to_jar(self, user_id, points):
@@ -40,10 +41,10 @@ class CasinoJar:
             cursor.execute("INSERT INTO jar_history (user_id, points, action) VALUES (?, ?, 'lose')", (user_id, points))
             conn.commit()
     
-    def add_winning_combination(self, user_id, full_wins=0, partial_wins=0):
+    def add_winning_combination(self, user_id, full_wins=0, partial_wins=0, total_exp_won=0):
         with sqlite3.connect(self.database_service.path) as conn:
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO jar_history (user_id, full_wins, partial_wins, action) VALUES (?, ?, ?, 'nothing')", (user_id, full_wins, partial_wins))
+            cursor.execute("INSERT INTO jar_history (user_id, full_wins, partial_wins, total_exp_won, action) VALUES (?, ?, ?, ?, 'nothing')", (user_id, full_wins, partial_wins, total_exp_won))
             conn.commit()
 
     def get_from_jar(self, user_id):
@@ -98,7 +99,7 @@ class CasinoJar:
         with sqlite3.connect(self.database_service.path) as conn:
             cursor = conn.cursor()
             cursor.execute("""
-            SELECT user_id, SUM(full_wins) as total_full_wins, SUM(partial_wins) as total_partial_wins 
+            SELECT user_id, SUM(full_wins) as total_full_wins, SUM(partial_wins) as total_partial_wins, SUM(total_exp_won) as total_exp_won
             FROM jar_history 
             GROUP BY user_id 
             ORDER BY total_full_wins DESC, total_partial_wins DESC""")

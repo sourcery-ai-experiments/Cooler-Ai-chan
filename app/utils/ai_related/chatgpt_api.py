@@ -19,7 +19,7 @@ def send_to_openai(messages):
 
 def send_to_openai_vision(question, image_url):
     completion = client.chat.completions.create(
-        model="gpt-4-vision-preview",
+        model="gpt-4o",
         messages=[
             {
                 "role": "user",
