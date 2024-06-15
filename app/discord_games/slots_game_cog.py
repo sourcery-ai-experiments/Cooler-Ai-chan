@@ -268,47 +268,6 @@ class SlotsGame(commands.Cog):
         embed = discord.Embed(title="🎰 Slots Ranking 🎰", color=0xFFD700)
 
         # Add a section for the winning combinations count
-        embed.add_field(name="🎉 Winning Combinations 🎉", value="", inline=False)
-        if winning_combinations:
-            for user in winning_combinations:
-                embed.add_field(name="User", value=f"{ctx.guild.get_member(user[0])}", inline=True)
-                embed.add_field(name="Full Wins", value=f"{user[1]}", inline=True)
-                embed.add_field(name="Partial Wins", value=f"{user[2]}", inline=True)
-        else:
-            embed.add_field(name="\u200b", value="No winning combinations yet", inline=False)
-
-        # Add a section for the top jar winners
-        embed.add_field(name="🏆 Top Jar Winners 🏆", value="", inline=False)
-        if top_winners:
-            for winner in top_winners:
-                embed.add_field(name="User", value=f"{ctx.guild.get_member(winner[0])}", inline=True)
-                embed.add_field(name="Jar Wins", value=f"{winner[2]}", inline=True)
-                embed.add_field(name="Exp", value=f"{winner[1]}", inline=True)
-        else:
-            embed.add_field(name="\u200b", value="No winners yet", inline=False)
-
-        # Add a section for the top losers
-        embed.add_field(name="😭 Top Losers 😭", value="", inline=False)
-        if top_losers:
-            for loser in top_losers:
-                embed.add_field(name="User", value=f"{ctx.guild.get_member(loser[0])}", inline=True)
-                embed.add_field(name="Losses", value=f"{loser[2]}", inline=True)
-                embed.add_field(name="Exp", value=f"{loser[1]}", inline=True)
-        else:
-            embed.add_field(name="\u200b", value="No losers yet", inline=False)
-
-        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
-
-        await ctx.send(embed=embed)
-
-    @commands.command(name='slotsrankingembed')
-    async def show_ranking_embed(self, ctx):
-        top_winners = self.casino_jar.get_top_winners_with_counts()
-        top_losers = self.casino_jar.get_top_losers()
-        winning_combinations = self.casino_jar.get_winning_combination_counts()
-        embed = discord.Embed(title="🎰 Slots Ranking 🎰", color=0xFFD700)
-
-        # Add a section for the winning combinations count
         winning_combination_str = ""
         if winning_combinations:
             for user in winning_combinations:
