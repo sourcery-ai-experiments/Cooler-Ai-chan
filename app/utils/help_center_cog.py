@@ -13,7 +13,7 @@ class HelpModule(commands.Cog):
             "AICommands": "aicommands",
             "AnimeCommands": "anime",
             "CommandHandlingService": "command",
-            # Add more aliases as needed
+            "SlotsGame": "slots",
         }
 
     @commands.command(name='help')
