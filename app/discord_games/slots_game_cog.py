@@ -9,6 +9,7 @@ from app.config import Config
 import discord
 
 class SlotsGame(commands.Cog):
+    """Just use **`+slotshelp`** to get all the info you need!"""
     def __init__(self, bot):
         self.bot = bot
         self.database = DatabaseService()
@@ -17,7 +18,7 @@ class SlotsGame(commands.Cog):
         self.config = Config()
         self.ENVIROMENT = self.config.ENVIROMENT
 
-    @commands.command(name='slots')
+    @commands.command(name='slots', help="Play the slot machine and win exp.")
     async def slot_machine(self, ctx, number: str):
         try:
             if number.lower() in {"allin", "max"}:
@@ -41,7 +42,7 @@ class SlotsGame(commands.Cog):
         total_exp = self.database.get_total_exp(ctx.message.author.id)
         
         if total_exp < amount:
-            await ctx.send("You don't have enough exp! Better go start grinding ;]")
+            await ctx.send("<:katded:1195709674369060895> You don't have enough exp! Better go start grinding <:katded:1195709674369060895>")
             return
         
         #for testing purposes
@@ -65,13 +66,13 @@ class SlotsGame(commands.Cog):
                 emotes = [str(i) for i in range(1, 10)]
 
             elif self.ENVIROMENT == "development": # For testing purposes
-                emote_count = 4 # Number of emotes to use
+                emote_count = 50 # Number of emotes to use
                 emotes = emotes[:emote_count]
             
             # Shuffle and create reels
             random.shuffle(emotes)
             reels = random.choices(emotes, k=9)
-            print(f"Reels: {reels}")
+            #print(f"Reels: {reels}")
             
             # Example reels after shuffling and selection
             # reels = ['😂', '😀', '🥺', '😂', '😀', '😍', '🥺', '😂', '😍']
@@ -136,7 +137,7 @@ class SlotsGame(commands.Cog):
                 if reels[4] == reels[5] and not (reels[3] == reels[4] == reels[5]):
                     partial_win_count += 1
                     multiplier += 2
-                    messages.append("🎊 Mini jackpot 🎊, almost had it! [3, 4] (4x)\n")
+                    messages.append("🎊 Mini jackpot 🎊, almost had it! [4, 5] (4x)\n")
                 if reels[6] == reels[4] and not (reels[6] == reels[4] == reels[2]):
                     partial_win_count += 1
                     multiplier += 1.5
@@ -186,7 +187,7 @@ class SlotsGame(commands.Cog):
             print(f"Partial wins: {partial_win_count}")
             print(f"Total multiplier: {multiplier}x")
 
-            final_message = "You won!\n"
+            final_message = "<:katflex:1195709683474907198> **You win!** <:katflex:1195709683474907198> \n"
    
             # Determine the reward
             amount_won = amount * multiplier
@@ -199,7 +200,7 @@ class SlotsGame(commands.Cog):
             elif multiplier > 0:
                 additional_message = final_message
             else:
-                additional_message = "You lost! Better luck next time!"
+                additional_message = "<:katded:1195709674369060895> You lost! Better luck next time! <:katded:1195709674369060895>"
 
             ## AFTER CHECKING WNINGS SEND IT TO EMBED AND CHANGE EXP ETC
 
@@ -209,7 +210,7 @@ class SlotsGame(commands.Cog):
             #sending to jar if user lost
             if amount_won == 0:
                 self.casino_jar.add_to_jar(ctx.message.author.id, amount)
-                jar_messgage = f"User {ctx.message.author} lost {amount} exp. It was added to the jar.\n Jar now has {self.casino_jar.get_jar_total()} exp."
+                jar_messgage = f"User **{ctx.message.author} lost {amount} exp. **<:katshock:1195710296677957694> Added to Jar <:katshrug:1196020060586790942>\n **Jar** now has **{self.casino_jar.get_jar_total()} exp**"
             else:
                 self.casino_jar.add_winning_combination(ctx.message.author.id, full_win_count, partial_win_count, amount_won)
                 logger.info(f"Adding winning combination for user {ctx.message.author} with full wins: {full_win_count} and partial wins: {partial_win_count}")
@@ -220,9 +221,9 @@ class SlotsGame(commands.Cog):
                 # Get the points from the jar and add them to the overal win
                 jar_winning = self.casino_jar.get_from_jar(ctx.message.author.id)
                 amount_won += jar_winning
-                jar_messgage = f"🎉 JACKPOOOOOT 🎉.\n 🎉 {jar_winning} exp taken from jar!. 🎉\n🎉 Now jar has {self.casino_jar.get_jar_total()} exp. 🎉"
+                jar_messgage = f"🎉 **JACKPOOOOOT** 🎉.\n 🎉 **{jar_winning} exp taken from jar!**. 🎉\n🎉 Now jar's back to {self.casino_jar.get_jar_total()} exp! 🎉"
             elif amount_won > 0:
-                jar_messgage = f"No jackpot = no jar winnings. Jar stays the same:  {self.casino_jar.get_jar_total()} exp."
+                jar_messgage = f"<:katcri:1195710613985431602> **Nope! No Jackpot!.** <:katcri:1195710613985431602>\n Jar stays the same:  **{self.casino_jar.get_jar_total()} exp**"
             # Set color of embed
             color = discord.Color.green() if amount_won > 0 else discord.Color.red()
             # Create and send the embed
@@ -255,12 +256,12 @@ class SlotsGame(commands.Cog):
             await ctx.send(f"An error occurred: {str(e)}.\n Your points have been returned. Ask Shiro AI whats wrong! (¬_¬)")
 
     # Command to show the jar amount
-    @commands.command(name='slotsjar')
+    @commands.command(name='slotsjar', help="Show the current amount of exp in the jar.")
     async def show_jar(self, ctx):
         jar_amount = self.casino_jar.get_jar_total()
         await ctx.send(f"Jar has {jar_amount} exp.")
 
-    @commands.command(name='slotsrank')
+    @commands.command(name='slotsrank', help="Show the slots ranking.")
     async def show_ranking_embed(self, ctx):
         top_winners = self.casino_jar.get_top_winners_with_counts()
         top_losers = self.casino_jar.get_top_losers()
@@ -282,14 +283,14 @@ class SlotsGame(commands.Cog):
         embed.add_field(name="🎉 Winning Combinations 🎉", value=winning_combination_str, inline=False)
 
         # Add a section for the top jar winners
-        embed.add_field(name="🏆 Top Jar Winners 🏆", value="", inline=False)
+        embed.add_field(name=f"🏆 Top Jar Winners 🏆 Currently in jar: {self.casino_jar.get_jar_total()} Exp.", value="", inline=False)
         if top_winners:
             for winner in top_winners:
                 embed.add_field(name="User", value=f"{ctx.guild.get_member(winner[0])}", inline=True)
                 embed.add_field(name="Jar Wins", value=f"{winner[2]}", inline=True)
                 embed.add_field(name="Exp", value=f"{winner[1]}", inline=True)
         else:
-            embed.add_field(name="SAD", value="No winners yet", inline=False)
+            embed.add_field(name="", value="<:katshrug:1196020060586790942> No winners yet <:katshrug:1196020060586790942>", inline=False)
 
         # Add a section for the top losers
         top_losers_str = ""
@@ -307,6 +308,24 @@ class SlotsGame(commands.Cog):
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
 
         await ctx.send(embed=embed)
+
+    @commands.command(name='slotshelp', help="Show the slots help message.")
+    async def show_slots_help(self, ctx):
+        embed = discord.Embed(title="🎰 Slots Help 🎰", color=0xFFD700)
+        embed.set_image(url="attachment://slots_help.png")
+        embed.add_field(name="How to Play", value=(
+            "1. Slots are free to play and use server Exp. Eg: **`+slots 10`**\n"
+            "2. Each lost Exp goes into the Slots Jar. Use **`+slotsjar`** to check the jar.\n"
+            "3. Hit the JACKPOT to win all accumulated Exp in the jar.\n"
+            "4. View the hall of fame and losers with **`+slotsrank`**.\n"
+            "5. For crazy people, use **`+slots allin`** to go all in!"
+        ), inline=False)
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        
+        with open("app/pics/slots_help.png", "rb") as file:
+            picture = discord.File(file, filename="slots_help.png")
+            await ctx.send(file=picture, embed=embed)
+
 
 async def setup(bot):
     await bot.add_cog(SlotsGame(bot))
