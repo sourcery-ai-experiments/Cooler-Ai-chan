@@ -11,7 +11,7 @@ class ManagementModule(commands.Cog):
         self.bot = bot
         self.database = DatabaseService()
         
-    @custom_command(name='exile', help='Kicks someone! +exile @user')
+    @custom_command(name='ban', help='Kicks someone! +ban @user')
     @commands.guild_only()
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
