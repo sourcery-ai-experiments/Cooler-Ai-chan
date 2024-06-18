@@ -1,10 +1,10 @@
 import logging
-from logging.handlers import RotatingFileHandler
+from logging.handlers import BaseRotatingHandler
 import os
 import requests
-from app.config import Config
 import datetime
 import colorlog
+from app.config import Config
 
 class LokiHandler(logging.Handler):
     def __init__(self, url):
@@ -29,6 +29,48 @@ class LokiHandler(logging.Handler):
     def format_time(self, timestamp):
         return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc).isoformat()
 
+class CustomFileHandler(BaseRotatingHandler):
+    def __init__(self, filename, maxBytes=0, encoding=None, delay=False):
+        super().__init__(filename, 'a', encoding, delay)
+        self.maxBytes = maxBytes
+
+        # Initialize the current log file
+        self.baseFilename = self.get_latest_log_file()
+        self.stream = self._open()
+
+    def shouldRollover(self, record):
+        if self.maxBytes > 0:                   # are we rolling over?
+            self.stream.seek(0, 2)  # due to non-posix-compliant Windows feature
+            if self.stream.tell() + len(self.format(record)) >= self.maxBytes:
+                return 1
+        return 0
+
+    def doRollover(self):
+        if self.stream:
+            self.stream.close()
+            self.stream = None
+
+        self.baseFilename = self.get_new_log_file()
+        self.mode = 'a'
+        self.stream = self._open()
+
+    def get_new_log_file(self):
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        return f"{self.baseFilename}_{timestamp}.log"
+
+    def get_latest_log_file(self):
+        log_dir = os.path.dirname(self.baseFilename)
+        log_files = sorted(
+            [f for f in os.listdir(log_dir) if f.startswith(os.path.basename(self.baseFilename))],
+            reverse=True
+        )
+        if log_files:
+            latest_log_file = os.path.join(log_dir, log_files[0])
+            if os.path.getsize(latest_log_file) < self.maxBytes:
+                return latest_log_file
+        
+        return self.get_new_log_file()
+
 def setup_logger():
     logger = logging.getLogger('discord_bot')
     logger.setLevel(logging.DEBUG)
@@ -38,8 +80,8 @@ def setup_logger():
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    # File handler
-    file_handler = RotatingFileHandler(Config.LOG_FILE_PATH, maxBytes=1024*1024*5, backupCount=2)
+    # Custom File handler with utf-8 encoding
+    file_handler = CustomFileHandler(Config.LOG_FILE_PATH, maxBytes=1024*1024*0.5, encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 

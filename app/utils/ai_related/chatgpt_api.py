@@ -29,7 +29,6 @@ def send_to_openai_vision(question, image_url):
                 ],
             }
         ],
-        max_tokens=300
     )
     answer = completion.choices[0].message.content
     prompt_tokens = completion.usage.prompt_tokens

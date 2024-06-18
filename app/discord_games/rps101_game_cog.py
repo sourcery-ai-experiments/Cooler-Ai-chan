@@ -6,6 +6,7 @@ from app.services.gambling_service import GamblingService
 from app.services.database_service import DatabaseService
 from app.utils.logger import logger
 from app.utils.embeds import create_rps101_embed  # Assuming you store your embed functions here
+from app.utils.command_utils import custom_command
 
 class RPS101Game(commands.Cog):
     def __init__(self, bot):
@@ -13,7 +14,7 @@ class RPS101Game(commands.Cog):
         self.database = DatabaseService()
         self.gambling_service = GamblingService()
 
-    @commands.command(name='rps')
+    @custom_command(name='rps')
     async def rps101(self, ctx, thing: str, bet: int):
         try:
             print(f"Received command: +rps {thing} {bet}")

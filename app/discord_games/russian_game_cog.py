@@ -2,6 +2,7 @@ import asyncio
 from discord.ext import commands
 from app.services.gambling_service import GamblingService
 from app.services.database_service import DatabaseService
+from app.utils.command_utils import custom_command
 
 class RussianGame(commands.Cog):
     def __init__(self, bot):
@@ -10,7 +11,7 @@ class RussianGame(commands.Cog):
         self.gambling_service = GamblingService()
         self.time = 0
 
-    @commands.command(name='russian')
+    @custom_command(name='russian')
     async def russian(self, ctx, number: str):
         try:
             if not self.gambling_service.joinable:
