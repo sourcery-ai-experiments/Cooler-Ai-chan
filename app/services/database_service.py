@@ -35,13 +35,7 @@ class DatabaseService:
                 type TEXT,
                 link TEXT
             )""")
-            # Check if 'total_exp' column exists
-            cursor.execute("PRAGMA table_info(users)")
-            columns = [col[1] for col in cursor.fetchall()]
-            if 'total_exp' not in columns:
-                cursor.execute("ALTER TABLE users ADD COLUMN total_exp INTEGER DEFAULT 0")
-                cursor.execute("UPDATE users SET total_exp = exp + ((level - 1) * 100)")
-            conn.commit()
+            
 
     def add_user(self, user):
         with sqlite3.connect(self.path) as conn:
