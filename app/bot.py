@@ -10,6 +10,7 @@ intents.members = True
 intents.messages = True
 intents.guilds = True
 intents.presences = True  # Enable the presences intent
+database = DatabaseService()
 
 bot = commands.Bot(command_prefix=Config.PREFIX, intents=intents)
 bot.bot_id = None  # Initialize bot_id
@@ -65,6 +66,10 @@ async def main():
 @bot.tree.command(name="ping", description="Ping the bot")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("Pong!")
+
+@bot.tree.command(name="tic_tac_toe")
+async def tic_tac_toe(interaction: discord.Interaction, difficulty: str):
+    bot.loop.create_task(start_tic_tac_toc(interaction, difficulty))
 
 if __name__ == "__main__":
     import asyncio
