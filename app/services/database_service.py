@@ -29,14 +29,22 @@ class DatabaseService:
                 total_exp INTEGER DEFAULT 0,
                 level INTEGER DEFAULT 1
             )""")
+            
             cursor.execute("""
-            CREATE TABLE IF NOT EXISTS pictures (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                type TEXT,
-                link TEXT
+            CREATE TABLE IF NOT EXISTS nicknames (
+                user_id INTEGER,
+                nickname TEXT,
+                FOREIGN KEY(user_id) REFERENCES users(id)
             )""")
             
 
+    def insert_nicknames(self, user_id, nicknames):
+        with sqlite3.connect(self.path) as conn:
+            cursor = conn.cursor()
+            for nickname in nicknames:
+                cursor.execute("INSERT INTO nicknames (user_id, nickname) VALUES (?, ?)", (user_id, nickname))
+            conn.commit()
+            
     def add_user(self, user):
         with sqlite3.connect(self.path) as conn:
             cursor = conn.cursor()
@@ -78,21 +86,20 @@ class DatabaseService:
 
         with sqlite3.connect(self.path) as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT nicknames FROM users WHERE id = ?", (user_id,))
+            # Check if the nickname already exists for this user
+            cursor.execute("SELECT nickname FROM nicknames WHERE user_id = ? AND nickname = ?", (user_id, nickname))
             result = cursor.fetchone()
-            if result:
-                nicknames = result[0].split(',')
-                if nickname not in nicknames:
-                    nicknames.append(nickname)
-                    cursor.execute("UPDATE users SET nicknames = ? WHERE id = ?", (",".join(nicknames), user_id))
-                    conn.commit()
+            if not result:
+                # Insert the new nickname
+                cursor.execute("INSERT INTO nicknames (user_id, nickname) VALUES (?, ?)", (user_id, nickname))
+                conn.commit()
 
     def get_nicknames(self, user_id: int) -> list:
         with sqlite3.connect(self.path) as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT nicknames FROM users WHERE id = ?", (user_id,))
-            result = cursor.fetchone()
-            return result[0].split(',') if result else []
+            cursor.execute("SELECT nickname FROM nicknames WHERE user_id = ?", (user_id,))
+            results = cursor.fetchall()
+            return [row[0] for row in results]
 
     def get_exp(self, user_id: int) -> int:
         with sqlite3.connect(self.path) as conn:

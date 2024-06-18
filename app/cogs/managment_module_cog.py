@@ -84,5 +84,19 @@ class ManagementModule(commands.Cog):
         for member in user_role.members:
             await member.edit(nick=name if name else member.name)
 
+
+
+    @custom_command(name='nickname', help='Retrieve nicknames for a specified user\nExample: +nickname @username')
+    async def get_nicknames(self, ctx, member: discord.Member):
+        nicknames = self.database.get_nicknames(member.id)
+        if nicknames:
+            message = f"Nicknames for {member.display_name}:\n"
+            for nickname in nicknames:
+                message += f"{nickname}\n"
+        else:
+            message = f"No nicknames found for {member.display_name}."
+        
+        await ctx.send(message)
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(ManagementModule(bot))
