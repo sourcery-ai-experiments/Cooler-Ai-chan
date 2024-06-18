@@ -36,6 +36,28 @@ class DatabaseService:
                 nickname TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )""")
+
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS pictures (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                type TEXT,
+                link TEXT
+            )""")
+
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tic_tac_toe_games (
+                game_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                discord_username TEXT NOT NULL,
+                bot_last_response TEXT DEFAULT 'lets start!',
+                board_state CHAR(9) NOT NULL DEFAULT '         ',
+                game_status TEXT NOT NULL DEFAULT 'ongoing',
+                difficulty TEXT NOT NULL,
+                last_move_player TEXT NOT NULL,
+                player_mark CHAR(1) NOT NULL,
+                move_history TEXT NOT NULL DEFAULT 'New game begins'
+            )
+        """)
+        conn.commit()
             
 
     def insert_nicknames(self, user_id, nicknames):
