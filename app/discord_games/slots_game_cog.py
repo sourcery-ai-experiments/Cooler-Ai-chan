@@ -30,14 +30,24 @@ class SlotsGame(commands.Cog):
                     #amount = 1
                     #await ctx.send("Playing for 0, probably testing the game? (¬_¬)")
                     return
+                elif amount < 50:
+                    await ctx.send("ALL IN is from 50 exp!! You don't have enough exp to go all in! Better go start grinding <:katded:1195709674369060895>")
+                    return
             else:
                 amount = int(number)
         except ValueError:
             await ctx.send("You need to specify an amount of exp you want to gamble!\nex. +slots 30 or +slots allin / +slots max")
             return
+        
+        #for testing purposes
+        if self.ENVIROMENT == "development" and amount == 0:
+            amount = 1
 
         if amount <= 0:
             await ctx.send("Wrong number or you want to spin for free! NOTHINGS FREE HERE! ((╬◣﹏◢))")
+            return
+        elif amount < 5:
+            await ctx.send("Minimum bet is 5 exp! You can do it! <:katshy:1195710296677957694>")
             return
 
         total_exp = self.database.get_total_exp(ctx.message.author.id)
@@ -46,9 +56,7 @@ class SlotsGame(commands.Cog):
             await ctx.send("<:katded:1195709674369060895> You don't have enough exp! Better go start grinding <:katded:1195709674369060895>")
             return
         
-        #for testing purposes
-        if self.ENVIROMENT == "development" and amount == 0:
-            amount = 1
+        
         try:
             # Deduct the points first
             level_up, level_down = self.database.add_exp(ctx.message.author.id, -amount)
