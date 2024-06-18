@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from discord.ui import View, Button
 from app.utils.logger import logger
+from app.utils.command_utils import custom_command
 
 class HelpModule(commands.Cog):
     def __init__(self, bot):
@@ -16,7 +17,7 @@ class HelpModule(commands.Cog):
             "SlotsGame": "slots",
         }
 
-    @commands.command(name='help')
+    @custom_command(name='help')
     async def custom_help(self, ctx, *, alias: str = None):
         """Displays help information for all commands or a specific cog."""
         if alias:
