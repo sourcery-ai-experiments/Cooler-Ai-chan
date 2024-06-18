@@ -1,3 +1,4 @@
+import json
 import discord
 from discord.ext import commands
 from discord.utils import get
@@ -84,27 +85,6 @@ class ManagementModule(commands.Cog):
         for member in user_role.members:
             await member.edit(nick=name if name else member.name)
 
-
-    @custom_command(name='addnicks', help='Load nicknames from a JSON file')
-    @commands.guild_only()
-    async def setnicks(self, ctx: Context, json_file: str):
-        await ctx.message.delete()
-
-        # Load the JSON file
-        try:
-            with open(json_file, 'r', encoding='utf-8-sig') as file:
-                data = json.load(file)
-        except FileNotFoundError:
-            await ctx.send("JSON file not found!")
-            return
-
-        # Insert nicknames into the database
-        for user_data in data:
-            user_id = int(user_data["_id"]["$numberLong"])
-            nicknames = user_data.get("nicknames", [])
-            self.database.insert_nicknames(user_id, nicknames)
-        
-        await ctx.send("Nicknames have been successfully set!")
 
     @custom_command(name='nickname', help='Retrieve nicknames for a specified user\nExample: +nickname @username')
     async def get_nicknames(self, ctx, member: discord.Member):
