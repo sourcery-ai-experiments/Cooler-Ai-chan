@@ -6,6 +6,7 @@ from app.utils.embeds import create_slot_machine_embed
 from app.utils.logger import logger
 from app.utils.gamba_jar import CasinoJar
 from app.config import Config
+from app.utils.command_utils import custom_command
 import discord
 
 class SlotsGame(commands.Cog):
@@ -18,7 +19,7 @@ class SlotsGame(commands.Cog):
         self.config = Config()
         self.ENVIROMENT = self.config.ENVIROMENT
 
-    @commands.command(name='slots', help="Play the slot machine and win exp.")
+    @custom_command(name='slots', help="Play the slot machine and win exp.")
     async def slot_machine(self, ctx, number: str):
         try:
             if number.lower() in {"allin", "max"}:
@@ -64,9 +65,10 @@ class SlotsGame(commands.Cog):
             if len(emotes) < 9:
                 await ctx.send("Not enough emotes available to play the slot machine. Using numbers instead.")
                 emotes = [str(i) for i in range(1, 10)]
-
+            elif self.ENVIROMENT == "production": # For production
+                emote_count = 35 # Number of emotes to use
             elif self.ENVIROMENT == "development": # For testing purposes
-                emote_count = 50 # Number of emotes to use
+                emote_count = 5 # Number of emotes to use
                 emotes = emotes[:emote_count]
             
             # Shuffle and create reels
@@ -256,12 +258,12 @@ class SlotsGame(commands.Cog):
             await ctx.send(f"An error occurred: {str(e)}.\n Your points have been returned. Ask Shiro AI whats wrong! (¬_¬)")
 
     # Command to show the jar amount
-    @commands.command(name='slotsjar', help="Show the current amount of exp in the jar.")
+    @custom_command(name='slotsjar', help="Show the current amount of exp in the jar.")
     async def show_jar(self, ctx):
         jar_amount = self.casino_jar.get_jar_total()
         await ctx.send(f"Jar has {jar_amount} exp.")
 
-    @commands.command(name='slotsrank', help="Show the slots ranking.")
+    @custom_command(name='slotsrank', help="Show the slots ranking.")
     async def show_ranking_embed(self, ctx):
         top_winners = self.casino_jar.get_top_winners_with_counts()
         top_losers = self.casino_jar.get_top_losers()
@@ -309,7 +311,7 @@ class SlotsGame(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name='slotshelp', help="Show the slots help message.")
+    @custom_command(name='slotshelp', help="Show the slots help message.")
     async def show_slots_help(self, ctx):
         embed = discord.Embed(title="🎰 Slots Help 🎰", color=0xFFD700)
         embed.set_image(url="attachment://slots_help.png")

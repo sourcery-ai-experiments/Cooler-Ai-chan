@@ -2,13 +2,16 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 from discord.ext.commands import has_permissions, Bot, Context
+from app.services.database_service import DatabaseService
+from app.utils.command_utils import custom_command
 
 class ManagementModule(commands.Cog):
     """Management module for Ai-Chan. Commands for managing the server."""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-
-    @commands.command(name='exile', help='Kicks someone! +exile @user')
+        self.database = DatabaseService()
+        
+    @custom_command(name='exile', help='Kicks someone! +exile @user')
     @commands.guild_only()
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
@@ -22,7 +25,7 @@ class ManagementModule(commands.Cog):
         await user.kick(reason=None)
         await ctx.send(f"{user.name}#{user.discriminator} has been exiled!")
 
-    @commands.command(name='clear', help='Deletes specified amount of messages. +clear number')
+    @custom_command(name='clear', help='Deletes specified amount of messages. +clear number')
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
@@ -37,12 +40,12 @@ class ManagementModule(commands.Cog):
         await ctx.channel.delete_messages(messages)
         await ctx.send(f"Deleted {amount} messages", delete_after=5)
 
-    @commands.command(name='say', help='Says something as Ai-Chan. +say text')
+    @custom_command(name='say', help='Says something as Ai-Chan. +say text')
     async def say(self, ctx: Context, *, text: str):
         await ctx.message.delete()
         await ctx.send(text)
 
-    @commands.command(name='showemotes', help='Lists all of a guild emotes.')
+    @custom_command(name='showemotes', help='Lists all of a guild emotes.')
     @commands.guild_only()
     async def showemotes(self, ctx: Context):
         guild = ctx.guild
@@ -69,7 +72,7 @@ class ManagementModule(commands.Cog):
         if emotes:
             await ctx.send(emotes)
 
-    @commands.command(name='setnicks', help='Set new nicknames for users with specific role\nExample: setnicks @role newnickname')
+    @custom_command(name='setnicks', help='Set new nicknames for users with specific role\nExample: setnicks @role newnickname')
     @commands.guild_only()
     async def setnicks(self, ctx: Context, user_role: discord.Role = None, *, name: str = None):
         await ctx.message.delete()

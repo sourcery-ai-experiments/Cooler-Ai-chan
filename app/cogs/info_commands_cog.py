@@ -3,17 +3,18 @@ import discord
 from discord.ext import commands
 import asyncio
 from app.utils.logger import logger
+from app.utils.command_utils import custom_command
 
 class InfoModule(commands.Cog):
     """Contains all needed commands, get information about servers, users, and Ai-Chan."""
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='latency', help="Shows Ai-Chan's response time.")
+    @custom_command(name='latency', help="Shows Ai-Chan's response time.")
     async def latency(self, ctx):
         await ctx.send(f"My response time is {round(self.bot.latency * 1000)} ms. 🏓")
 
-    @commands.command(name='botinfo', help="Shows Ai-Chan's statistics.")
+    @custom_command(name='botinfo', help="Shows Ai-Chan's statistics.")
     async def botinfo(self, ctx):
         users = sum(guild.member_count for guild in self.bot.guilds)
 
@@ -28,7 +29,7 @@ class InfoModule(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name='userinfo', help="Shows user's information\n+userinfo [user]")
+    @custom_command(name='userinfo', help="Shows user's information\n+userinfo [user]")
     async def userinfo(self, ctx, *, user: discord.Member = None):
         user = user or ctx.author
 
@@ -59,7 +60,7 @@ class InfoModule(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name='serverinfo', help="Shows information about the current guild.")
+    @custom_command(name='serverinfo', help="Shows information about the current guild.")
     async def serverinfo(self, ctx):
         guild = ctx.guild
 
@@ -83,7 +84,7 @@ class InfoModule(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @commands.command(name='avatar', help="Sends link to user's avatar.")
+    @custom_command(name='avatar', help="Sends link to user's avatar.")
     async def avatar(self, ctx, *, user: discord.Member = None):
         user = user or ctx.author
         embed = discord.Embed(color=discord.Color.blue())
