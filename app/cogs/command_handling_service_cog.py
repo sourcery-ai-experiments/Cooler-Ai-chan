@@ -19,6 +19,7 @@ class CommandHandlingService(commands.Cog):
         self.current_log_file = self.get_latest_log_file()
         logger.info("CommandHandlingService initialized")
         self.previous_author = {}  # Dictionary to track the last author per channel
+        self.last_command_user = {}
 
     def get_new_log_file(self):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -72,10 +73,16 @@ class CommandHandlingService(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot:
+            # If the bot is responding to a command, track the user who initiated the command
+            if message.reference and message.reference.resolved:
+                referenced_message = message.reference.resolved
+                if referenced_message.author != self.bot.user:
+                    self.last_command_user[message.channel.id] = referenced_message.author.id
             return
 
         # Check if the message is a command
         if message.content.startswith(Config.PREFIX):
+            self.last_command_user[message.channel.id] = message.author.id
             return
 
         # Respond to greetings
@@ -105,7 +112,8 @@ class CommandHandlingService(commands.Cog):
             if channel_id not in self.previous_author:
                 self.previous_author[channel_id] = None  # Initialize if not present
 
-            if self.previous_author[channel_id] not in [author_id, self.bot.bot_id]:
+            # Allow users and the bot to gain experience points but ensure users get exp even after bot responses
+            if self.previous_author[channel_id] != author_id and self.last_command_user.get(channel_id) != author_id:
                 level_up, _ = self.database.add_exp(author_id, 1)
                 if level_up:
                     await message.channel.send(f"🎉 Level Up! 🎉 Congratulations! {message.author.mention}! You leveled up from babbling so much!\n GRIND GRIND GRIND")
