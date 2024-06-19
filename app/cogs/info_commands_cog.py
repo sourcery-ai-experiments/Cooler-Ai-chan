@@ -4,11 +4,12 @@ from discord.ext import commands
 import asyncio
 from app.utils.logger import logger
 from app.utils.command_utils import custom_command
-
+from app.services.database_service import DatabaseService
 class InfoModule(commands.Cog):
     """Contains all needed commands, get information about servers, users, and Ai-Chan."""
     def __init__(self, bot):
         self.bot = bot
+        self.database = DatabaseService()
 
     @custom_command(name='latency', help="Shows Ai-Chan's response time.")
     async def latency(self, ctx):
@@ -49,11 +50,16 @@ class InfoModule(commands.Cog):
             discord.Status.dnd: "⛔"
         }
 
+        info = self.database.get_level_info(user.id)
+        total_exp = info[2]
+
         embed = discord.Embed(color=status_colors.get(user.status, discord.Color.default()))
         embed.set_author(name=f"{user.name}#{user.discriminator}", icon_url=user.display_avatar.url)
         embed.add_field(name="📅 Joined", value=user.joined_at.strftime("%Y-%m-%d %H:%M:%S UTC"), inline=True)
         embed.add_field(name="🕒 Registered", value=user.created_at.strftime("%Y-%m-%d %H:%M:%S UTC"), inline=True)
         embed.add_field(name=f"{status_emojis.get(user.status)} Status", value=user.status, inline=False)
+        # total exp of user
+        embed.add_field(name="🔹 Total Exp, requested by Baka", value=total_exp, inline=True)
         embed.add_field(name="🔷 Roles", value=roles if roles else "No roles", inline=False)
         embed.set_thumbnail(url=user.display_avatar.url)
         embed.set_footer(text=f"ID: {user.id}", icon_url=user.display_avatar.url)

@@ -37,9 +37,17 @@ async def on_command(ctx):
     user = ctx.author
     command = ctx.command
     channel = ctx.channel
+    bot_id = bot.bot_id
     params = {param: value for param, value in ctx.kwargs.items()}
     params.update({param: value for param, value in zip(command.clean_params, ctx.args[2:])})
     logger.info(f"Command '{command}' used by '{user}' in channel '{channel}' with params: {params}")
+    level_up, _ = database.add_exp(bot_id, 1)
+    print(level_up)
+    #logger.info(f"Bot gained 1 exp")
+    if level_up:
+        # send that bot leveled up
+        await ctx.send(f"🎉 Level Up! 🎉 Congratulations to MYSELF! Aichan just leveled up! GRIND GRIND GRIND")
+        logger.info(f"Bot leveled up!")
 
 
 async def load_cogs():
