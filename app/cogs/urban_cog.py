@@ -4,6 +4,7 @@ import aiohttp
 from app.utils.logger import logger
 from app.utils.embeds import get_urban_embed
 from app.services.database_service import DatabaseService
+from app.utils.command_utils import custom_command
 
 class UrbanModule(commands.Cog):
     """Services offered by Ai-Chan - paid 1 exp per use"""
@@ -12,7 +13,7 @@ class UrbanModule(commands.Cog):
         self.database = DatabaseService()
         self.get_urban_embed = get_urban_embed
 
-    @commands.command(name='urban', help="urban dictionary")
+    @custom_command(name='urban', help="urban dictionary")
     async def get_urban_dictionary_definition(self, ctx, *, term: str):
         async with aiohttp.ClientSession() as session:
             try:
