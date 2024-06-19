@@ -3,6 +3,8 @@ from discord.ext import commands
 from app.config import Config
 import os
 from app.utils.logger import logger
+from app.services.database_service import DatabaseService
+from app.discord_games.tic_tac_toe.tic_tac_toe import start_tic_tac_toc
 #from app.discord_games.tic_tac_toe.tic_tac_toe import start_tic_tac_toc
 intents = discord.Intents.default()
 intents.message_content = True
