@@ -72,18 +72,30 @@ class CommandHandlingService(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        logger.debug("----------")
         if message.author.bot:
             # If the bot is responding to a command, track the user who initiated the command
             if message.reference and message.reference.resolved:
                 referenced_message = message.reference.resolved
                 if referenced_message.author != self.bot.user:
-                    self.last_command_user[message.channel.id] = referenced_message.author.id
-            return
+                    self.last_command_user[message.channel.name] = referenced_message.author.name
+            return  
 
+        
         # Check if the message is a command
         if message.content.startswith(Config.PREFIX):
-            self.last_command_user[message.channel.id] = message.author.id
+            self.last_command_user[message.channel.name] = message.author.name
             return
+
+        # Clear the last command user if someone else sends a message
+        channel_name = message.channel.name
+        author_name = message.author.name
+        channel_id = message.channel.id
+        author_id = message.author.id
+        if self.last_command_user.get(channel_name) == author_name:
+            pass
+        elif not message.author.bot:
+            self.last_command_user[channel_name] = None
 
         # Respond to greetings
         greetings = ["hello", "hi", "yo", "hey", "ohayo", "henlo", "oi", "ahoy"]
@@ -106,9 +118,6 @@ class CommandHandlingService(commands.Cog):
 
         # Level up for chatting
         if os.path.exists(self.database.path):
-            channel_id = message.channel.id
-            author_id = message.author.id
-
             if channel_id not in self.previous_author:
                 self.previous_author[channel_id] = None  # Initialize if not present
 
@@ -120,8 +129,7 @@ class CommandHandlingService(commands.Cog):
 
             self.previous_author[channel_id] = author_id
         logger.info(f"Message from {message.author} in {message.channel}: {message.content}")
-        logger.info(f"previous_author: {self.previous_author}")
-
+        #logger.info(f"previous_author: {self.previous_author}")
 
 
         # Bad word filter
@@ -131,11 +139,12 @@ class CommandHandlingService(commands.Cog):
 
         # Log the message
         self.log_message(message.author, message.channel, message)
-
+        print(f"last command user: {self.last_command_user}")
         # Process message
         user = message.author
         channel = message.channel
         #logger.debug(f"Processing message from {user} in {channel}: {message.content}")
+        logger.debug("----------")
         await self.bot.process_commands(message)
 
     @commands.Cog.listener()

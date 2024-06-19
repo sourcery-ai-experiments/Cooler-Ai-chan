@@ -4,7 +4,7 @@ from app.services.gambling_service import GamblingService, level_up_message, lev
 from app.services.database_service import DatabaseService
 from app.utils.embeds import create_slot_machine_embed
 from app.utils.logger import logger
-from app.utils.gamba_jar import CasinoJar
+from app.services.gamba_jar import CasinoJar
 from app.config import Config
 from app.utils.command_utils import custom_command
 import discord

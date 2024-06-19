@@ -144,9 +144,10 @@ class DatabaseService:
             cursor = conn.cursor()
             cursor.execute("SELECT exp, level, total_exp FROM users WHERE id = ?", (user_id,))
             result = cursor.fetchone()
+            user_name = cursor.execute("SELECT name FROM users WHERE id = ?", (user_id,)).fetchone()[0]
             if result:
                 exp, level, total_exp = result
-                print(f"Initial values - exp: {exp}, level: {level}, total_exp: {total_exp}")
+                #print(f"Initial values - exp: {exp}, level: {level}, total_exp: {total_exp}")
 
                 total_exp += amount
                 if total_exp < 0:
@@ -163,9 +164,9 @@ class DatabaseService:
                 
                 cursor.execute("UPDATE users SET exp = ?, total_exp = ?, level = ? WHERE id = ?", (exp_in_level, total_exp, new_level, user_id))
                 conn.commit()
-                print(f"Updated values - exp_in_level: {exp_in_level}, total_exp: {total_exp}, new_level: {new_level}, level_up: {level_up}, level_down: {level_down}")
+                logger.debug(f"user {user_name} GOT 1 EXP total_exp: {total_exp}")
             else:
-                print(f"User {user_id} not found.")
+                print(f"User {user_name} not found.")
         return level_up, level_down
 
     def experience_to_reach_level(self, level: int) -> int:
