@@ -5,6 +5,7 @@ import os
 from app.utils.logger import logger
 from app.services.database_service import DatabaseService
 from app.discord_games.tic_tac_toe.tic_tac_toe import start_tic_tac_toc
+
 #from app.discord_games.tic_tac_toe.tic_tac_toe import start_tic_tac_toc
 intents = discord.Intents.default()
 intents.message_content = True
@@ -17,6 +18,8 @@ database = DatabaseService()
 bot = commands.Bot(command_prefix=Config.PREFIX, intents=intents)
 bot.bot_id = None  # Initialize bot_id
 
+
+
 @bot.event
 async def on_ready():
     logger.info("------")
@@ -25,6 +28,17 @@ async def on_ready():
     bot.bot_id = bot.user.id  # Set bot's user ID
     logger.info(f"Bot ID is {bot.bot_id}")
     logger.debug(f"Bot environment is set to {Config.ENVIROMENT}")
+
+    # Check missed alarms
+    logger.info("Checking missed alarms")
+    alarm_cog = bot.get_cog("AlarmCog")
+    if alarm_cog:
+        logger.info("Found AlarmCog, checking existing alarms")
+        await alarm_cog.check_existing_alarms()
+        logger.info("Checked missed alarms")
+    else:
+        logger.error("AlarmCog not found")
+
 
     try:
         await bot.tree.sync(guild=discord.Object(id=Config.GUILD_ID))

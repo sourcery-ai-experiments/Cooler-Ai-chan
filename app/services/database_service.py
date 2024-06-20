@@ -57,6 +57,16 @@ class DatabaseService:
                 move_history TEXT NOT NULL DEFAULT 'New game begins'
             )
         """)
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS alarms (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                channel_id INTEGER,
+                trigger_time INTEGER,
+                note TEXT,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )""")
+
         conn.commit()
             
 
@@ -232,3 +242,36 @@ class DatabaseService:
             results = cursor.fetchall()
             for user in results:
                 logger.debug(user)
+
+    def insert_alarm(self, user_id, channel_id, trigger_time, note):
+        with sqlite3.connect(self.path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT INTO alarms (user_id, channel_id, trigger_time, note)
+            VALUES (?, ?, ?, ?)""", (user_id, channel_id, trigger_time, note))
+            conn.commit()
+            return cursor.lastrowid  # Return the ID of the newly inserted alarm
+
+    def delete_alarm(self, alarm_id):
+        with sqlite3.connect(self.path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM alarms WHERE id = ?", (alarm_id,))
+            conn.commit()
+
+    def get_alarms(self):
+        with sqlite3.connect(self.path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, user_id, channel_id, trigger_time, note FROM alarms")
+            return cursor.fetchall()
+
+    def get_user_alarms(self, user_id):
+        with sqlite3.connect(self.path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, trigger_time, note FROM alarms WHERE user_id = ?", (user_id,))
+            return cursor.fetchall()
+    
+    def delete_user_alarms(self, user_id):
+        with sqlite3.connect(self.path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM alarms WHERE user_id = ?", (user_id,))
+            conn.commit()
