@@ -15,6 +15,9 @@ class HelpModule(commands.Cog):
             "AnimeCommands": "anime",
             "CommandHandlingService": "command",
             "SlotsGame": "slots",
+            "RussianGame": "russian",
+            "GuessEmoji": "emojis",
+            "AlarmCog": "alarm",
         }
 
     @custom_command(name='help')
