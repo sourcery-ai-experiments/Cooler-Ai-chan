@@ -1,9 +1,7 @@
 import os
 import discord
 from discord.ext import commands
-import asyncio
 from app.utils.logger import logger
-from app.utils.command_utils import custom_command
 from app.services.database_service import DatabaseService
 class InfoModule(commands.Cog):
     """Contains all needed commands, get information about servers, users, and Ai-Chan."""
@@ -11,11 +9,17 @@ class InfoModule(commands.Cog):
         self.bot = bot
         self.database = DatabaseService()
 
-    @custom_command(name='latency', help="Shows Ai-Chan's response time.")
+    @commands.hybrid_command(name='latency', description="Shows Ai-Chan's response time.")
     async def latency(self, ctx):
         await ctx.send(f"My response time is {round(self.bot.latency * 1000)} ms. 🏓")
 
-    @custom_command(name='botinfo', help="Shows Ai-Chan's statistics.")
+    
+
+    @commands.hybrid_command(name="ping", description="Ping the bot")
+    async def ping(self, ctx: commands.Context):
+        await ctx.send("Pong!")
+        
+    @commands.hybrid_command(name='botinfo', help="Shows Ai-Chan's statistics.")
     async def botinfo(self, ctx):
         users = sum(guild.member_count for guild in self.bot.guilds)
 
@@ -30,7 +34,35 @@ class InfoModule(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @custom_command(name='userinfo', help="Shows user's information\n+userinfo [user]")
+        # Function to count lines in Python files
+    def count_python_lines(directory):
+        total_lines = 0
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.endswith('.py'):
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        total_lines += sum(1 for _ in f)
+        return total_lines
+
+    # Custom command to show total lines of Python code
+    @commands.hybrid_command(name='total_lines', help='Shows the total number of lines of Python code in the app folder.')
+    async def total_lines(self, ctx):
+        # Adjust this line to point to the 'app' directory specifically
+        app_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    
+        total_lines = 0
+        for root, _, files in os.walk(app_directory):
+            for file in files:
+                if file.endswith('.py'):
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        total_lines += sum(1 for _ in f)
+
+        await ctx.send(f"The total number of lines of Python code is {total_lines}.")
+
+
+    @commands.hybrid_command(name='userinfo', help="Shows user's information\n+userinfo [user]")
     async def userinfo(self, ctx, *, user: discord.Member = None):
         user = user or ctx.author
 
@@ -66,7 +98,7 @@ class InfoModule(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @custom_command(name='serverinfo', help="Shows information about the current guild.")
+    @commands.hybrid_command(name='serverinfo', help="Shows information about the current guild.")
     async def serverinfo(self, ctx):
         guild = ctx.guild
 
@@ -90,7 +122,7 @@ class InfoModule(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @custom_command(name='avatar', help="Sends link to user's avatar.")
+    @commands.hybrid_command(name='avatar', help="Sends link to user's avatar.")
     async def avatar(self, ctx, *, user: discord.Member = None):
         user = user or ctx.author
         embed = discord.Embed(color=discord.Color.blue())

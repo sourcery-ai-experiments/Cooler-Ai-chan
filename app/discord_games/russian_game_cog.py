@@ -11,15 +11,15 @@ class RussianGame(commands.Cog):
         self.gambling_service = GamblingService()
         self.time = 0
 
-    @custom_command(name='russian')
-    async def russian(self, ctx, number: str):
+    @commands.hybrid_command(name='russian')
+    async def russian(self, ctx, exp: str):
         try:
             if not self.gambling_service.joinable:
                 await ctx.send("Game has already been started!")
                 return
 
             try:
-                amount = int(number)
+                amount = int(exp)
             except ValueError:
                 await ctx.send("You need to specify an amount of exp you want to bet!\nex. +russian 30")
                 return

@@ -10,19 +10,19 @@ class DatabaseModule(commands.Cog):
         self.bot = bot
         self.database = DatabaseService()
 
-    @custom_command(name='levelinfo')
+    @commands.hybrid_command(name='levelinfo')
     async def get_user(self, ctx):
         user_id = ctx.author.id
         info = self.database.get_level_info(user_id)
         await ctx.send(f"Gozaimas! o/ How's grinding?\nLevel: {info[0]}\nExperience: {info[1]}\nTotal Experience: {info[2]}")
 
-    @custom_command(name='aichaninfo')
+    @commands.hybrid_command(name='aichaninfo')
     async def aichan_info(self, ctx):
         aichan_id = 452541322667229194
         info = self.database.get_level_info(aichan_id)
         await ctx.send(f"Here my stats! OwO\nLevel: {info[0]}\nExperience: {info[1]}")
 
-    @custom_command(name='leaderboard')
+    @commands.hybrid_command(name='leaderboard')
     async def get_leaderboard(self, ctx):
         leaderboard = self.database.get_leaderboard()
         await ctx.send(leaderboard)
@@ -39,7 +39,7 @@ class DatabaseModule(commands.Cog):
         except ValueError:
             await ctx.send("Invalid number.")
 
-    @custom_command(name='listusers')
+    @commands.hybrid_command(name='listusers')
     async def list_users(self, ctx):
         self.database.list_users()
         await ctx.send("Listed all users in the console.")

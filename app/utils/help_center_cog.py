@@ -20,7 +20,7 @@ class HelpModule(commands.Cog):
             "AlarmCog": "alarm",
         }
 
-    @custom_command(name='help')
+    @commands.hybrid_command(name='help')
     async def custom_help(self, ctx, *, alias: str = None):
         """Displays help information for all commands or a specific cog."""
         if alias:
