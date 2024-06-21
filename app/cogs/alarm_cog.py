@@ -82,7 +82,7 @@ class AlarmCog(commands.Cog):
         else:
             await ctx.send(f"Alarm {dynamic_id} does not exist, {ctx.message.author.mention}.")
 
-    @custom_command(name='listalarms', help="List all active alarms for the user.")
+    @commands.hybrid_command(name='alarmlist', help="List all active alarms for the user.")
     async def alarm_list(self, ctx):
         user_id = ctx.message.author.id
         user_alarms = sorted(self.database.get_user_alarms(user_id), key=lambda x: x[1])
