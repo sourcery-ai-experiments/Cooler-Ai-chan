@@ -19,10 +19,10 @@ class SlotsGame(commands.Cog):
         self.config = Config()
         self.ENVIROMENT = self.config.ENVIROMENT
 
-    @custom_command(name='slots', help="Play the slot machine and win exp.")
-    async def slot_machine(self, ctx, number: str):
+    @commands.hybrid_command(name='slots', help="Play the slot machine and win exp.")
+    async def slot_machine(self, ctx, exp: str):
         try:
-            if number.lower() in {"allin", "max"}:
+            if exp.lower() in {"allin", "max"}:
                 amount = self.database.get_total_exp(ctx.message.author.id)
                 if amount == 0:
                     await ctx.send("You don't have any exp to bet! Better go start grinding ;]")
@@ -34,7 +34,7 @@ class SlotsGame(commands.Cog):
                     await ctx.send("ALL IN is from 50 exp!! You don't have enough exp to go all in! Better go start grinding <:katded:1195709674369060895>")
                     return
             else:
-                amount = int(number)
+                amount = int(exp)
         except ValueError:
             await ctx.send("You need to specify an amount of exp you want to gamble!\nex. +slots 30 or +slots allin / +slots max")
             return
@@ -186,7 +186,7 @@ class SlotsGame(commands.Cog):
             all_in_message = None
             full_win_count, partial_win_count, multiplier, messages, jackpot_win = check_win(reels)
             # check if user used all in, if so , multiplyer is 3x and all in message is added
-            if number.lower() in {"allin", "max"}:
+            if exp.lower() in {"allin", "max"}:
                 multiplier *= 3
                 all_in_message = "All in! Multiplier multiplyed by 3x!"
 
@@ -266,12 +266,12 @@ class SlotsGame(commands.Cog):
             await ctx.send(f"An error occurred: {str(e)}.\n Your points have been returned. Ask Shiro AI whats wrong! (¬_¬)")
 
     # Command to show the jar amount
-    @custom_command(name='slotsjar', help="Show the current amount of exp in the jar.")
+    @commands.hybrid_command(name='slotsjar', help="Show the current amount of exp in the jar.")
     async def show_jar(self, ctx):
         jar_amount = self.casino_jar.get_jar_total()
         await ctx.send(f"Jar has {jar_amount} exp.")
 
-    @custom_command(name='slotsrank', help="Show the slots ranking.")
+    @commands.hybrid_command(name='slotsrank', help="Show the slots ranking.")
     async def show_ranking_embed(self, ctx):
         top_winners = self.casino_jar.get_top_winners_with_counts()
         top_losers = self.casino_jar.get_top_losers()
@@ -319,7 +319,7 @@ class SlotsGame(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @custom_command(name='slotshelp', help="Show the slots help message.")
+    @commands.hybrid_command(name='slotshelp', help="Show the slots help message.")
     async def show_slots_help(self, ctx):
         embed = discord.Embed(title="🎰 Slots Help 🎰", color=0xFFD700)
         embed.set_image(url="attachment://slots_help.png")

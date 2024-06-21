@@ -25,3 +25,4 @@ class Config:
     LOKI_URL = os.getenv('LOKI_URL', 'http://localhost:3100')
     PREFIX = os.getenv('PREFIX', '+')
     ENVIROMENT = os.getenv('ENVIROMENT', 'production')
+    master_user_id = int(os.getenv('MASTER_USER_ID'))

@@ -85,7 +85,7 @@ class ManagementModule(commands.Cog):
             await member.edit(nick=name if name else member.name)
 
 
-    @custom_command(name='nickname', help='Retrieve nicknames for a specified user\nExample: +nickname @username')
+    @commands.hybrid_command(name='nickname', help='Retrieve nicknames for a specified user\nExample: +nickname @username')
     async def get_nicknames(self, ctx, member: discord.Member):
         nicknames = self.database.get_nicknames(member.id)
         if nicknames:

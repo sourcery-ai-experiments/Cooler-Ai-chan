@@ -13,7 +13,7 @@ class UrbanModule(commands.Cog):
         self.database = DatabaseService()
         self.get_urban_embed = get_urban_embed
 
-    @custom_command(name='urban', help="urban dictionary")
+    @commands.hybrid_command(name='urban', help="urban dictionary")
     async def get_urban_dictionary_definition(self, ctx, *, term: str):
         async with aiohttp.ClientSession() as session:
             try:

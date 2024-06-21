@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 from discord.ext import commands
 import discord
 import asyncio
@@ -7,9 +6,8 @@ import re
 import logging
 import time
 from app.services.database_service import DatabaseService
-from app.utils.command_utils import custom_command
+from app.utils.logger import logger
 
-logger = logging.getLogger(__name__)
 
 class AlarmCog(commands.Cog):
     """Alarm commands. use **+alarmhelp** for more info."""
@@ -19,30 +17,30 @@ class AlarmCog(commands.Cog):
         self.database = DatabaseService()
         self.alarms = {}
 
-    @custom_command(name='alarmhelp', help="Show the alarm help message.")
+    @commands.hybrid_command(name='alarmhelp', help="Show the alarm help message.")
     async def show_alarm_help(self, ctx):
         embed = discord.Embed(title="⏰ Alarm Help ⏰", color=0x00FF00)
-        embed.add_field(name="How to Use Alarms", value=(
-            "1. **Set an Alarm:** Use the command `+alarm [time] [note]`. Example: **`+alarm 20d 1h 10m 5s Meeting`**\n"
-            "2. **Stop an Alarm:** Use the command `+stopalarm [dynamic_id]` to stop an active alarm. Example: **`+stop_alarm 1`**\n"
-            "3. **List Alarms:** Use the command `+listalarms` to view all active alarms.\n"
-            "4. **Clear Alarms:** Use the command `+clearalarms` to stop all active alarms.\n"
+        embed.add_field(name="How to Use Alarms, prefix '+' or '/' commands", value=(
+            "1. **Set an Alarm:** Use the command `+alarm [time] [note]`. Example: **`+alarm 20d 1h 10m 5s meeting`**\n"
+            "2. **Stop an Alarm:** Use the command `+alarmstop [dynamic_id]` to stop an active alarm. Example: **`+alarmstop 1`**\n"
+            "3. **List Alarms:** Use the command `+alarmlist` to view all active alarms.\n"
+            "4. **Clear Alarms:** Use the command `+alarmclear` to stop all active alarms.\n"
             "**Dynamic ID:** The ID for stopping an alarm is dynamically assigned in the list. It starts from 1 for the nearest alarm."
         ), inline=False)
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
         await ctx.send(embed=embed)
 
 
-    @custom_command(name='alarm', help="Set an alarm. Usage: +alarm 5m or +alarm 5d 1h 30m 10s [note]")
-    async def alarm(self, ctx, *args):
+    @commands.hybrid_command(name='alarm', help="Set an alarm. Usage: +alarm 5m [note] or +alarm 5d 1h 30m 10s [note]")
+    async def alarm(self, ctx, *, args: str):
         user_id = ctx.message.author.id
         channel_id = ctx.message.channel.id
-        if len(args) == 0:
+        if not args:
             await ctx.send("Please provide a valid time format and an optional note.")
             return
 
         # Separate time and note
-        time_str, note = self.extract_time_and_note(args)
+        time_str, note = self.extract_time_and_note(args.split())
 
         try:
             seconds = self.parse_time(time_str)
@@ -66,7 +64,7 @@ class AlarmCog(commands.Cog):
             await ctx.send(f"An error occurred: {e}")
 
 
-    @custom_command(name='stopalarm', help="Stop the current alarm if one is set. Usage: +stop_alarm [dynamic_id]")
+    @commands.hybrid_command(name='alarmstop', help="Stop the current alarm if one is set. Usage: +stop_alarm [dynamic_id]")
     async def stop_alarm(self, ctx, dynamic_id: int = None):
         user_id = ctx.message.author.id
         user_alarms = sorted(self.database.get_user_alarms(user_id), key=lambda x: x[1])
@@ -118,7 +116,7 @@ class AlarmCog(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @custom_command(name="clearalarms", help="Stop all active alarms for the user.")
+    @commands.hybrid_command(name="alarmclear", help="Stop all active alarms for the user.")
     async def stop_all_alarms(self, ctx):
         user_id = ctx.message.author.id
         user_alarms = self.database.get_user_alarms(user_id)
@@ -166,17 +164,16 @@ class AlarmCog(commands.Cog):
         logger.info(f"Extracted time: {extracted_time_str}, note: {extracted_note}")
         return extracted_time_str, extracted_note
 
-
     def parse_time(self, time_str: str) -> int:
         """Parse the time string and return the time in seconds."""
         time_str = time_str.strip().lower()
         total_seconds = 0
         matches = re.findall(r'(\d+)([dhms])', time_str)
-        
+
         if not matches:
             logger.error(f"No matches found in time string: {time_str}")
             return None
-        
+
         for value, unit in matches:
             value = int(value)
             if unit == 's':
@@ -187,7 +184,7 @@ class AlarmCog(commands.Cog):
                 total_seconds += value * 3600
             elif unit == 'd':
                 total_seconds += value * 86400
-        
+
         logger.info(f"Parsed time string '{time_str}' to {total_seconds} seconds.")
         return total_seconds if total_seconds > 0 else None
 

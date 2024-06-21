@@ -14,7 +14,7 @@ class RPS101Game(commands.Cog):
         self.database = DatabaseService()
         self.gambling_service = GamblingService()
 
-    @custom_command(name='rps')
+    @commands.hybrid_command(name='rps')
     async def rps101(self, ctx, thing: str, bet: int):
         try:
             print(f"Received command: +rps {thing} {bet}")
