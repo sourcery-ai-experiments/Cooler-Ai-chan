@@ -19,7 +19,7 @@ class EmojiService:
         self.config = Config
         self.active_games: Dict[int, Dict[str, Any]] = {}
         self.cooldown_hours = self.config.COOLDOWN_HOURS  # Use the global cooldown_minutes
-        self.max_stacked_usages = 8
+        self.max_stacked_usages = 4
         self.initial_usages = 2  # Initial usages for new users
         self.emoji_key = self.config.EMOJI_API_KEY
 
