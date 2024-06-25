@@ -74,7 +74,7 @@ class GuessEmoji(commands.Cog):
 
 
 
-    @custom_command(name='emojishelp', help="Check your emoji game status.")
+    @custom_command(name='emojisusage', help="Check your emoji game status.")
     async def emojishelp(self, ctx):
         user_id = ctx.author.id
         remaining_usages, not_in_db = self.emoji_service.get_remaining_usages(user_id)
@@ -135,5 +135,22 @@ class GuessEmoji(commands.Cog):
         time_remaining_str = f"{hours:02}:{minutes:02}:{seconds:02}"
         return time_remaining_str
         
+    @custom_command(name='emojishelp', help="Show the emoji guessing game help message.")
+    async def show_emoji_help(self, ctx):
+        embed = discord.Embed(title="😀 Emoji Guessing Game Help 😀", color=0x00FF00)
+          # Only if you have an image ready
+        embed.add_field(name="How to Play", value=(
+            "1. Start a new game by typing **`+emojis`** without any arguments.\n"
+            "2. You'll get a random emoji question. Respond with **`+emojis 'your guess with normal human language' `** it's AI ^^ to submit your answer.\n"
+            "3. You **get 1 usage every 4 hours**. You can stack up to **4 usages**.\n"
+            "4. Use the **`+emojisusage`** to check your game status and remaining guesses.\n"
+            "5. Correct answers will earn you **5 exp**.\n"
+            "5. Can you guess all the emojis correctly? Also works with **slashes commands**."
+        ), inline=False)
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        await ctx.send(embed=embed)
+        
+
+
 async def setup(bot):
     await bot.add_cog(GuessEmoji(bot))
