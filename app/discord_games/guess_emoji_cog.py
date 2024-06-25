@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import sqlite3
 import time
 import discord
 from discord.ext import commands
@@ -8,12 +9,13 @@ from app.services.database_service import DatabaseService
 from app.services.gambling_service import level_up_message
 from app.utils.logger import logger
 from app.config import Config
+
 class GuessEmoji(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.emoji_service = EmojiService()
         self.database = DatabaseService()
-        
+        self.config = Config()
 
     @custom_command(name='emojis', help="Play the emoji guessing game! Use once to start, use again to answer.")
     async def emojis(self, ctx, *, input: str = None):
@@ -150,6 +152,31 @@ class GuessEmoji(commands.Cog):
         embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url)
         await ctx.send(embed=embed)
         
+    @commands.command(name='cleanupdb')
+    async def cleanup_db(self, ctx):
+        # Assuming 'shiro_id_variable' contains your Discord user ID
+        shiro_id_variable = self.config.master_user_id # currently its AI shiro id  # Replace with your actual Discord ID
+
+        # Check if the user executing the command is you
+        if ctx.author.id != int(shiro_id_variable):
+            await ctx.send("Sorry, you do not have permission to use this command.")
+            return
+        
+        # Perform the database cleanup
+        database_path = "app/persistent_data/database/database.db"  # Update this path as necessary
+        try:
+            with sqlite3.connect(database_path) as conn:
+                cursor = conn.cursor()
+                # Since dropping a table is quite drastic, ensure this is the intended operation
+                cursor.execute("DROP TABLE IF EXISTS emoji_game_usage;")  # Safer with IF EXISTS
+                conn.commit()
+            
+           
+            
+            await ctx.send("Database cleanup complete.")
+        except Exception as e:
+            await ctx.send(f"An error occurred: {e}")
+
 
 
 async def setup(bot):
