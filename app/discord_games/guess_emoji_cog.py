@@ -15,7 +15,7 @@ class GuessEmoji(commands.Cog):
         self.database = DatabaseService()
         
 
-    @custom_command(name='emojis', help="Play the emoji guessing game! Use once to start, use again to answer.")
+    @commands.hybrid_command(name='emojis', help="Play the emoji guessing game! Use once to start, use again to answer.")
     async def emojis(self, ctx, *, input: str = None):
         user_id = ctx.author.id
         print("in emojis command")
@@ -74,7 +74,7 @@ class GuessEmoji(commands.Cog):
 
 
 
-    @custom_command(name='emojishelp', help="Check your emoji game status.")
+    @commands.hybrid_command(name='emojishelp', help="Check your emoji game status.")
     async def emojishelp(self, ctx):
         user_id = ctx.author.id
         remaining_usages, not_in_db = self.emoji_service.get_remaining_usages(user_id)
