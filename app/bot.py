@@ -49,50 +49,6 @@ async def on_ready():
     except Exception as e:
         logger.error(f"Failed to sync commands: {e}")
 
-    
-
-async def calculate_initial_delay():
-    now = datetime.now()
-    print(f"Current time: {now}")
-
-    # Start from today at midnight
-    reference_time = now.replace(hour=Config.REFERENCE_HOUR, minute=0, second=0, microsecond=0)
-    print(f"Base reference time: {reference_time}")
-    
-    # Calculate all trigger times for the next 24 hours
-    trigger_times = []
-    for i in range(24 // Config.COOLDOWN_MINUTES):
-        trigger_time = reference_time + timedelta(hours=i * Config.COOLDOWN_MINUTES)
-        if trigger_time <= now:
-            trigger_time += timedelta(days=1)
-        trigger_times.append(trigger_time)
-    
-    print("Trigger times:")
-    for t in trigger_times:
-        print(f"  {t}")
-    
-    # Find the next trigger time
-    next_trigger_time = min(trigger_times)
-    print(f"Next trigger time: {next_trigger_time}")
-    
-    # Calculate the delay
-    initial_delay = (next_trigger_time - now).total_seconds()
-    return initial_delay
-
-async def initial_delay_and_start_task():
-    initial_delay = await calculate_initial_delay()
-    print(f"Initial delay calculated: {initial_delay} seconds")
-    print(f"This is approximately {initial_delay / 60:.2f} minutes")
-    
-    # Wait for the initial delay
-    await asyncio.sleep(initial_delay)
-    print("Initial delay complete, starting recurring task")
-    
-    # Start the recurring task
-    update_usages.start()
-
-
-
 ######################################################################################
 
 async def test_calculate_initial_delay():

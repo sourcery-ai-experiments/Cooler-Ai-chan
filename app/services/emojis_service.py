@@ -1,9 +1,12 @@
 import json
+import random
 import re
 import sqlite3
 from typing import Dict, Any, Optional, Tuple
 import time
 from datetime import datetime, timedelta, timezone
+
+import requests
 from app.services.database_service import DatabaseService
 from app.config import Config
 from app.utils.logger import logger
@@ -18,18 +21,26 @@ class EmojiService:
         self.cooldown_hours = self.config.COOLDOWN_HOURS  # Use the global cooldown_minutes
         self.max_stacked_usages = 8
         self.initial_usages = 2  # Initial usages for new users
+        self.emoji_key = self.config.EMOJI_API_KEY
 
     def generate_emoji_question(self) -> Optional[Dict[str, Any]]:
+        emojis = self.fetch_emojis()
+        emoji_combination = self.create_emoji_combination(emojis)
+        if not emoji_combination:
+            logger.error("Failed to generate emoji combination")
+            return None
+        
         messages = [
             {"role": "system", "content": "You are Ai-Chan, the AI assistant from Honkai Impact and mascot of the Bakakats Discord server. Now you are playing an emoji guessing game."},
-            {"role": "user", "content": """Generate a question using emojis that represents a movie, game, or something well-known.
+            {"role": "user", "content": f"""Generate a question using the following emojis: {emoji_combination}
+            The question should represent a movie, game, or something well-known.
             Be creative with this emojis, but make sure it's something that can be guessed. Don't be repetitive, try to be unique and fun.
             Provide your response in the following JSON format:
-            {
+            {{
                 "question": "emoji string here",
                 "answer": "correct answer here",
                 "hint": "hint here"
-            }
+            }}
             Ensure that your response contains a valid JSON object."""}
         ]
         response, _, _, _ = send_to_openai(messages)
@@ -229,3 +240,20 @@ class EmojiService:
 
         del self.active_games[user_id]
         return validation_data
+
+    def fetch_emojis(self):
+        url = f"https://emoji-api.com/emojis?access_key={self.emoji_key}"
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return []
+
+    def create_emoji_combination(self, emojis, min_emojis=2, max_emojis=5):
+        valid_emojis = [emoji for emoji in emojis if 'character' in emoji and emoji['character'].isprintable()]
+        num_emojis = random.randint(min_emojis, max_emojis)
+        if len(valid_emojis) >= num_emojis:
+            emoji_combination = random.sample(valid_emojis, num_emojis)
+            question_emojis = ''.join([emoji['character'] for emoji in emoji_combination])
+            return question_emojis
+        return ''
