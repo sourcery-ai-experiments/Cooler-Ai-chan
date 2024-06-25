@@ -3,16 +3,16 @@ from discord.ext import commands
 from app.config import Config
 from app.utils.logger import logger
 from app.cogs.command_handling_service_cog import CommandHandlingService
-
+from app.utils.command_utils import custom_command
 class General(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.command_handling_service = CommandHandlingService(bot)
         self.config = Config()
 
-    @commands.command(name='sync')
+    @custom_command(name='sync')
     async def sync_commands(self, ctx):
-        if str(ctx.author.id) == self.config.master_user_id:
+        if ctx.author.id == self.config.master_user_id: # currently its AI shiro id
             try:
                 # Attempt to sync the commands and log each one
                 synced_commands = await self.bot.tree.sync()

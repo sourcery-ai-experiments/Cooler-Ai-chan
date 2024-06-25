@@ -32,3 +32,5 @@ class Config:
     # Alternatively, use hours if you decide to use a longer interval
     COOLDOWN_HOURS = 4 # Example value for a 3-hour cooldown
     REFERENCE_HOUR = 0  # Reference hour to start the intervals
+
+    EMOJI_API_KEY = os.getenv('EMOJI_API_KEY')

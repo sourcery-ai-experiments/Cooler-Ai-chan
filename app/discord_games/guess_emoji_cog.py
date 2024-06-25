@@ -15,7 +15,7 @@ class GuessEmoji(commands.Cog):
         self.database = DatabaseService()
         
 
-    @commands.hybrid_command(name='emojis', help="Play the emoji guessing game! Use once to start, use again to answer.")
+    @custom_command(name='emojis', help="Play the emoji guessing game! Use once to start, use again to answer.")
     async def emojis(self, ctx, *, input: str = None):
         user_id = ctx.author.id
         print("in emojis command")
@@ -68,13 +68,13 @@ class GuessEmoji(commands.Cog):
                 game_data = self.emoji_service.active_games.get(user_id, {})
                 correct_answer = game_data.get('answer', 'Unknown')
                 embed = discord.Embed(title="Emoji Guessing Game",
-                                    description=f"Sorry, that's not correct. The correct answer was: {correct_answer}\n{result['comment']}",
+                                    description=f"Sorry, that's not correct.\n{result['comment']}",
                                     color=discord.Color.red())
                 await ctx.send(embed=embed)
 
 
 
-    @commands.hybrid_command(name='emojishelp', help="Check your emoji game status.")
+    @custom_command(name='emojishelp', help="Check your emoji game status.")
     async def emojishelp(self, ctx):
         user_id = ctx.author.id
         remaining_usages, not_in_db = self.emoji_service.get_remaining_usages(user_id)
