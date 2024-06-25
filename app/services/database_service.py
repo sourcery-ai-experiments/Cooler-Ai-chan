@@ -57,6 +57,7 @@ class DatabaseService:
                 move_history TEXT NOT NULL DEFAULT 'New game begins'
             )
         """)
+            
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS alarms (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,6 +65,15 @@ class DatabaseService:
                 channel_id INTEGER,
                 trigger_time INTEGER,
                 note TEXT,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )""")
+
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS emoji_game_usage (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER UNIQUE,
+                available_usages INTEGER,
+                last_updated INTEGER,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )""")
 

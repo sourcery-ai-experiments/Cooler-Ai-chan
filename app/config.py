@@ -26,3 +26,9 @@ class Config:
     PREFIX = os.getenv('PREFIX', '+')
     ENVIROMENT = os.getenv('ENVIROMENT', 'production')
     master_user_id = int(os.getenv('MASTER_USER_ID'))
+    
+    # Game configuration
+    COOLDOWN_MINUTES = 1  # Set this to the appropriate value for testing
+    # Alternatively, use hours if you decide to use a longer interval
+    COOLDOWN_HOURS = 4 # Example value for a 3-hour cooldown
+    REFERENCE_HOUR = 0  # Reference hour to start the intervals

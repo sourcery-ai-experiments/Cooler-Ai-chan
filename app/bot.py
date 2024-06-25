@@ -1,10 +1,13 @@
+from datetime import datetime, timedelta
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from app.config import Config
 import os
 from app.utils.logger import logger
 from app.services.database_service import DatabaseService
 from app.discord_games.tic_tac_toe.tic_tac_toe import start_tic_tac_toc
+from app.services.emojis_service import EmojiService
+import asyncio
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -15,6 +18,7 @@ intents.presences = True  # Enable the presences intent
 
 database = DatabaseService()
 bot = commands.Bot(command_prefix=Config.PREFIX, intents=intents)
+emoji_service = EmojiService()
 
 @bot.event
 async def on_ready():
@@ -22,7 +26,7 @@ async def on_ready():
     logger.info("Cooler AI-Chan is Up and ready!")
     bot.bot_id = bot.user.id  # Set bot's user ID
     logger.info(f"Bot ID is {bot.bot_id}")
-    logger.debug(f"Bot environment is set to {Config.ENVIROMENT}")
+    #logger.debug(f"Bot environment is set to {Config.ENVIRONMENT}")
 
     # Check missed alarms
     logger.info("Checking missed alarms")
@@ -34,12 +38,116 @@ async def on_ready():
     else:
         logger.error("AlarmCog not found")
 
+
+    # Start the initial delay task
+    bot.loop.create_task(test_initial_delay_and_start_task())
+
     # Sync the slash commands
     try:
         await bot.tree.sync(guild=discord.Object(id=Config.GUILD_ID))
         logger.debug("Commands synced successfully!")
     except Exception as e:
         logger.error(f"Failed to sync commands: {e}")
+
+    
+
+async def calculate_initial_delay():
+    now = datetime.now()
+    print(f"Current time: {now}")
+
+    # Start from today at midnight
+    reference_time = now.replace(hour=Config.REFERENCE_HOUR, minute=0, second=0, microsecond=0)
+    print(f"Base reference time: {reference_time}")
+    
+    # Calculate all trigger times for the next 24 hours
+    trigger_times = []
+    for i in range(24 // Config.COOLDOWN_MINUTES):
+        trigger_time = reference_time + timedelta(hours=i * Config.COOLDOWN_MINUTES)
+        if trigger_time <= now:
+            trigger_time += timedelta(days=1)
+        trigger_times.append(trigger_time)
+    
+    print("Trigger times:")
+    for t in trigger_times:
+        print(f"  {t}")
+    
+    # Find the next trigger time
+    next_trigger_time = min(trigger_times)
+    print(f"Next trigger time: {next_trigger_time}")
+    
+    # Calculate the delay
+    initial_delay = (next_trigger_time - now).total_seconds()
+    return initial_delay
+
+async def initial_delay_and_start_task():
+    initial_delay = await calculate_initial_delay()
+    print(f"Initial delay calculated: {initial_delay} seconds")
+    print(f"This is approximately {initial_delay / 60:.2f} minutes")
+    
+    # Wait for the initial delay
+    await asyncio.sleep(initial_delay)
+    print("Initial delay complete, starting recurring task")
+    
+    # Start the recurring task
+    update_usages.start()
+
+
+
+######################################################################################
+
+async def test_calculate_initial_delay():
+    now = datetime.now()
+    print(f"Current time: {now}")
+
+    # Start from today at the reference hour
+    reference_time = now.replace(hour=Config.REFERENCE_HOUR, minute=0, second=0, microsecond=0)
+    print(f"Base reference time: {reference_time}")
+    
+    # Calculate all trigger times for the next 24 hours
+    trigger_times = []
+    hours_in_day = 24
+    for i in range(hours_in_day // Config.COOLDOWN_HOURS):
+        trigger_time = reference_time + timedelta(hours=i * Config.COOLDOWN_HOURS)
+        if trigger_time <= now:
+            trigger_time += timedelta(days=1)
+        trigger_times.append(trigger_time)
+    
+    print("Next few trigger times:")
+    for t in trigger_times[:5]:  # Print only the next 5 for brevity
+        print(f"  {t}")
+    
+    # Find the next trigger time
+    next_trigger_time = min(trigger_times)
+    print(f"Next trigger time: {next_trigger_time}")
+    
+    # Calculate the delay
+    initial_delay = (next_trigger_time - now).total_seconds()
+    return initial_delay
+
+async def test_initial_delay_and_start_task():
+    initial_delay = await test_calculate_initial_delay()
+    print(f"Initial delay calculated: {initial_delay:.2f} seconds")
+    print(f"This is approximately {initial_delay / 3600:.2f} hours")
+    
+    # Wait for the initial delay
+    await asyncio.sleep(initial_delay)
+    print("Initial delay complete, starting recurring task")
+
+
+
+
+
+######################################################################################
+
+@tasks.loop(hours=Config.COOLDOWN_HOURS)  # Use the global cooldown interval
+async def update_usages():
+    logger.warning("Updating emoji game usages for all users.")
+    try:
+        emoji_service.update_all_usages()
+        logger.warning("Usages updated successfully.")
+    except Exception as e:
+        logger.error(f"Failed to update usages: {e}")
+
 
 @bot.event
 async def on_command(ctx):
