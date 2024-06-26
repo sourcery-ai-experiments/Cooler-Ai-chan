@@ -31,8 +31,8 @@ class AICommands(commands.Cog):
     async def chat(self, ctx, *, question: str):
         try:
             logger.debug(f"------- \nCommand CHAT used by user {ctx.author.name}")
-            
-            messages = await self.groq_service.assemble_chat_history(ctx, question)
+            messages = await self.groq_service.assemble_chat_history(ctx)
+            messages = await self.groq_service.add_command_messages(ctx, messages, question)
             response, prompt_tokens, completion_tokens, total_tokens = send_to_groq(messages)
             logger.info(f"Prompt tokens: {prompt_tokens}")
             logger.info(f"Completion tokens: {completion_tokens}")
@@ -62,7 +62,8 @@ class AICommands(commands.Cog):
         try:
             logger.debug(f"------- \nCommand CHAT used by user {ctx.author.name}")
             
-            messages = await self.groq_service.assemble_chat_history(ctx, question)
+            messages = await self.groq_service.assemble_chat_history(ctx)
+            messages = await self.groq_service.add_command_messages(ctx, messages, question)
             response, prompt_tokens, completion_tokens, total_tokens = send_to_openai(messages)
             logger.info(f"Prompt tokens: {prompt_tokens}")
             logger.info(f"Completion tokens: {completion_tokens}")
@@ -73,13 +74,25 @@ class AICommands(commands.Cog):
             logger.error(f"Error in Chat command: {ex}")
             await ctx.send("Sorry, something went wrong while processing your request.")
 
-    @custom_command(name='vision', help="Ask a question to the AI with an image.")
-    async def vision(self, ctx, *, question):
+    @commands.hybrid_command(name='vision', help="Ask a question to the AI with an image.")
+    async def vision(self, ctx, question: str, attachment: discord.Attachment = None):
         try:
             logger.debug(f"------- \nCommand VISION used by user {ctx.author.name}")
-            if ctx.message.attachments:
-                attachment_url = ctx.message.attachments[0].url  # Get the first attachment's URL
-                response, _, _, _ = send_to_openai_vision(question, attachment_url)
+            
+            # Check if an attachment was provided
+            if attachment is None and ctx.message.attachments:
+                attachment = ctx.message.attachments[0]
+
+            if attachment:
+                await ctx.defer()  # Defer the response to avoid timeout
+                attachment_url = attachment.url  # Get the attachment's URL
+                
+                # Correctly await and unpack the response
+                response = await send_to_openai_vision(question, attachment_url)
+                
+                if isinstance(response, tuple):
+                    response, _, _, _ = response
+
                 logger.debug(f"Sending response: {response}\n-------------")
                 
                 # Split the response into chunks if it exceeds the Discord message limit

@@ -2,11 +2,12 @@ from openai import OpenAI
 from app.utils.logger import logger
 client = OpenAI()
 from dotenv import load_dotenv
+import anthropic
 
 load_dotenv() # load openai api key from .env file
 
 def send_to_openai(messages):
-    completion = client.chat.completions.create(model="gpt-3.5-turbo", messages=messages, temperature=0.6)
+    completion = client.chat.completions.create(model="gpt-4o", messages=messages, temperature=1.3)
     answer = completion.choices[0].message.content
     prompt_tokens = completion.usage.prompt_tokens
     completion_tokens = completion.usage.completion_tokens
