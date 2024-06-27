@@ -4,26 +4,40 @@ from discord.utils import get
 from discord.ext.commands import has_permissions, Bot, Context
 from app.services.database_service import DatabaseService
 from app.utils.command_utils import custom_command
+from app.config import Config
 
 class ManagementModule(commands.Cog):
     """Management module for Ai-Chan. Commands for managing the server."""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.database = DatabaseService()
-        
-    @custom_command(name='ban', help='Kicks someone! +ban @user')
+        self.shiro_id = Config.master_user_id
+        self.nequs_id = Config.nequs_id
+    @commands.command(name='ban', aliases=['kick', 'exile'], help='Bans, kicks, or exiles someone! Use +ban @user, +kick @user, or +exile @user')
     @commands.guild_only()
-    @commands.has_permissions(kick_members=True)
-    @commands.bot_has_permissions(kick_members=True)
-    async def kick(self, ctx: Context, *, command: str):
-        user = await commands.MemberConverter().convert(ctx, command)
-
-        if not user:
+    @commands.has_permissions(kick_members=True, ban_members=True)
+    @commands.bot_has_permissions(kick_members=True, ban_members=True)
+    async def handle_member(self, ctx: Context, *, command: str):
+        try:
+            user = await commands.MemberConverter().convert(ctx, command)
+        except commands.MemberNotFound:
             await ctx.send("User not found!")
             return
 
-        await user.kick(reason=None)
-        await ctx.send(f"{user.name}#{user.discriminator} has been exiled!")
+        if user.id == self.shiro_id:
+            await ctx.send("You cannot take action against Shiro the god!")
+            return
+        elif user.id == self.nequs_id:
+            await ctx.send("Nequs, you wish but I'm the Ai-chan owner!")
+            return
+
+        if ctx.invoked_with == 'ban':
+            await user.ban(reason=None)
+            await ctx.send(f"{user.name}#{user.discriminator} has been banned!")
+        else:
+            await user.kick(reason=None)
+            await ctx.send(f"{user.name}#{user.discriminator} has been exiled!")
+    
 
     @custom_command(name='clear', help='Deletes specified amount of messages. +clear number')
     @commands.guild_only()
