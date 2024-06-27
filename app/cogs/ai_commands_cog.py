@@ -1,9 +1,9 @@
+import asyncio
 import discord
 from discord.ext import commands
 from app.utils.ai_related.groq_api import send_to_groq
-from app.utils.ai_related.chatgpt_api import send_to_openai
 from app.utils.ai_related.groq_service import GroqService
-from app.utils.ai_related.chatgpt_api import send_to_openai_vision
+from app.utils.ai_related.chatgpt_api import send_to_openai_vision, send_to_openai_gpt, send_to_openai, ask_gpt
 from app.utils.logger import logger
 from app.utils.command_utils import custom_command
 
@@ -13,7 +13,7 @@ class AICommands(commands.Cog):
         self.groq_service = GroqService()  
          
 
-    @custom_command(name='ask', help="Ask a question to the AI.")
+    @commands.hybrid_command(name='ask', help="Ask a question to the AI.")
     async def ask(self, ctx, *, question):
         try:
             logger.debug(f"------- \nCommand ASK used by user {ctx.author.name}")
@@ -27,7 +27,7 @@ class AICommands(commands.Cog):
         
     
 
-    @custom_command(name='chat', help="Chat with the AI.")
+    @commands.hybrid_command(name='chat', help="Chat with the AI.")
     async def chat(self, ctx, *, question: str):
         try:
             logger.debug(f"------- \nCommand CHAT used by user {ctx.author.name}")
@@ -43,7 +43,48 @@ class AICommands(commands.Cog):
             logger.error(f"Error in Chat command: {ex}")
             await ctx.send("Sorry, something went wrong while processing your request.")
 
-    @custom_command(name='oldask', help="Ask a question to the AI.")
+    @commands.hybrid_command(name='askgpt', help="Ask a question to the AI.")
+    async def askgpt(self, ctx, *, question):
+        try:
+            logger.debug(f"------- \nCommand ASK used by user {ctx.author.name}")
+            messages = await ask_gpt(ctx.author.name, ctx.author.id, question)
+            
+            # Defer the response to avoid timeout
+            await ctx.defer()
+
+            # Send the "bot is thinking" message
+            thinking_message = await ctx.send("🤔 I'm thinking...")
+
+            try:
+                # Await the send_to_openai function with a timeout
+                response = await asyncio.wait_for(send_to_openai_gpt(messages), timeout=20.0)
+            except asyncio.TimeoutError:
+                await thinking_message.delete()
+                await ctx.send("Sorry, the request timed out. Please try again.")
+                return
+            
+            if isinstance(response, tuple):
+                response, _, _, _ = response
+
+            logger.debug(f"Sending response: {response}\n-------------")
+            
+            # Delete the "bot is thinking" message
+            await thinking_message.delete()
+
+            # Split the response into chunks if it exceeds the Discord message limit
+            if len(response) > 2000:
+                for i in range(0, len(response), 2000):
+                    await ctx.send(response[i:i+2000])
+            else:
+                await ctx.send(response)
+        except Exception as ex:
+            logger.error(f"Error in Ask command: {ex}")
+            await ctx.send("Sorry, something went wrong while processing your request.")
+
+            
+
+
+    @commands.hybrid_command(name='oldask', help="Ask a question to the AI.")
     async def oldask(self, ctx, *, question):
         try:
             logger.debug(f"------- \nCommand ASK used by user {ctx.author.name}")
@@ -57,7 +98,7 @@ class AICommands(commands.Cog):
         
     
 
-    @custom_command(name='oldchat', help="Chat with the AI.")
+    @commands.hybrid_command(name='oldchat', help="Chat with the AI.")
     async def oldchat(self, ctx, *, question: str):
         try:
             logger.debug(f"------- \nCommand CHAT used by user {ctx.author.name}")
