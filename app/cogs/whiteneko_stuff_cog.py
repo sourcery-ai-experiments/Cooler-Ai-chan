@@ -1,3 +1,4 @@
+import re
 import discord
 from discord.ext import commands
 from app.services.database_service import DatabaseService
@@ -28,9 +29,23 @@ class WhitenekoModule(commands.Cog):
             j (int): The number of times to send the message.
             text (str): The message to send.
         """
-        await ctx.message.delete()
-        for _ in range(j):
-            await ctx.send(text)
+        # Anti-roblox filter for nequs
+        roblox_patterns = [
+            r"r[\W_]*o[\W_]*b[\W_]*l[\W_]*o[\W_]*x", 
+            r"r[\W_]*o[\W_]*b[\W_]*u[\W_]*x", 
+            r"b[\W_]*l[\W_]*o[\W_]*x", 
+            r"b[\W_]*l[\W_]*o[\W_]*s",
+            r"b[\W_]*l[\W_]*o"
+        ]
+        
+        # Check if any pattern matches the text content
+        if any(re.search(pattern, text, re.IGNORECASE) for pattern in roblox_patterns):
+            await ctx.message.delete()
+            await ctx.send(f"<:pandafbi:1195713733142511706>{ctx.author.mention} tried to spam: **{text}** and we don't want roblox here! <:deletedis:1196019787084615770>")
+        else:
+            await ctx.message.delete()
+            for _ in range(j):
+                await ctx.send(text)
 
     @commands.command(name='dm')
     async def dm(self, ctx, user: discord.Member, *, text: str):

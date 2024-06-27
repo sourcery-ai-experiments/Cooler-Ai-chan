@@ -84,7 +84,7 @@ class AICommands(commands.Cog):
             
 
 
-    @commands.hybrid_command(name='oldask', help="Ask a question to the AI.")
+    @custom_command(name='oldask', help="Ask a question to the AI.")
     async def oldask(self, ctx, *, question):
         try:
             logger.debug(f"------- \nCommand ASK used by user {ctx.author.name}")
@@ -98,7 +98,7 @@ class AICommands(commands.Cog):
         
     
 
-    @commands.hybrid_command(name='oldchat', help="Chat with the AI.")
+    @custom_command(name='oldchat', help="Chat with the AI.")
     async def oldchat(self, ctx, *, question: str):
         try:
             logger.debug(f"------- \nCommand CHAT used by user {ctx.author.name}")
@@ -115,7 +115,7 @@ class AICommands(commands.Cog):
             logger.error(f"Error in Chat command: {ex}")
             await ctx.send("Sorry, something went wrong while processing your request.")
 
-    @commands.hybrid_command(name='vision', help="Ask a question to the AI with an image.")
+    @custom_command(name='vision', help="Ask a question to the AI with an image.")
     async def vision(self, ctx, question: str, attachment: discord.Attachment = None):
         try:
             logger.debug(f"------- \nCommand VISION used by user {ctx.author.name}")

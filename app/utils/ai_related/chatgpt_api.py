@@ -14,10 +14,10 @@ def send_to_openai(messages):
     logger.info(f"Prompt tokens: {prompt_tokens}")
     logger.info(f"Completion tokens: {completion_tokens}")
     logger.info(f"Total tokens: {total_tokens}")
-    logger.info(f"Response: {answer}")
+    #logger.info(f"Response: {answer}")
     return answer, prompt_tokens, completion_tokens, total_tokens
 
-def send_to_openai_vision(question, image_url):
+async def send_to_openai_vision(question, image_url):
     completion = client.chat.completions.create(
         model="gpt-4o",
         messages=[
