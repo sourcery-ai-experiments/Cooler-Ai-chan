@@ -44,8 +44,8 @@ class AlarmCog(commands.Cog):
 
         try:
             seconds = self.parse_time(time_str)
-            if seconds is None or seconds > 2592000:  # Limit to 30 days (30 * 86400)
-                await ctx.send("Please use a valid time format (e.g., 5m, 10s, 1h 30m 10s, 7d) and within 30 days.")
+            if seconds is None or seconds > 31536000:  # Limit to 365 days (365 * 86400)
+                await ctx.send("Please use a valid time format (e.g., 5m, 10s, 1h 30m 10s, 7d) and within 365 days.")
                 return
 
             trigger_time = int(time.time()) + seconds
@@ -127,11 +127,6 @@ class AlarmCog(commands.Cog):
                 del self.alarms[alarm_id]
         self.database.delete_user_alarms(user_id)
         await ctx.send(f"All alarms have been cancelled, {ctx.message.author.mention}.")
-
-
-    
-       
-
 
     async def start_alarm(self, ctx, trigger_time, note):
         await asyncio.sleep(max(0, trigger_time - int(time.time())))
