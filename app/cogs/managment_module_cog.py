@@ -13,11 +13,12 @@ class ManagementModule(commands.Cog):
         self.database = DatabaseService()
         self.shiro_id = Config.master_user_id
         self.nequs_id = Config.nequs_id
+        
     @commands.command(name='ban', aliases=['kick', 'exile'], help='Bans, kicks, or exiles someone! Use +ban @user, +kick @user, or +exile @user')
     @commands.guild_only()
     @commands.has_permissions(kick_members=True, ban_members=True)
     @commands.bot_has_permissions(kick_members=True, ban_members=True)
-    async def handle_member(self, ctx: Context, *, command: str):
+    async def handle_member(self, ctx: commands.Context, *, command: str):
         try:
             user = await commands.MemberConverter().convert(ctx, command)
         except commands.MemberNotFound:
@@ -25,18 +26,17 @@ class ManagementModule(commands.Cog):
             return
 
         if user.id == self.shiro_id:
-            await ctx.send("You cannot take action against Shiro the god!")
-            return
-        elif user.id == self.nequs_id:
-            await ctx.send("Nequs, you wish but I'm the Ai-chan owner!")
+            if ctx.author.id == self.nequs_id:
+                await ctx.send("Nequs, you wish but I'm the Ai-chan owner!")
+            else:
+                await ctx.send("You cannot take action against Shiro the god!")
             return
 
-        if ctx.invoked_with == 'ban':
+        # Nequs-specific check removed, allowing Nequs to ban others
+        if ctx.invoked_with in ['ban', 'exile', 'kick']:
             await user.ban(reason=None)
             await ctx.send(f"{user.name}#{user.discriminator} has been banned!")
-        else:
-            await user.kick(reason=None)
-            await ctx.send(f"{user.name}#{user.discriminator} has been exiled!")
+        
     
 
     @custom_command(name='clear', help='Deletes specified amount of messages. +clear number')

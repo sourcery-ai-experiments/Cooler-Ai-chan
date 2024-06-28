@@ -55,7 +55,7 @@ async def ask_gpt(author, author_id, user_message):
         return "Sorry, something went wrong while processing your request."
 
 async def send_to_openai_gpt(messages):
-    completion = await asyncio.to_thread(client.chat.completions.create, model="gpt-4o", messages=messages, temperature=1.3)
+    completion = await asyncio.to_thread(client.chat.completions.create, model="gpt-4o", messages=messages, temperature=0.7)
     answer = completion.choices[0].message.content
     prompt_tokens = completion.usage.prompt_tokens
     completion_tokens = completion.usage.completion_tokens

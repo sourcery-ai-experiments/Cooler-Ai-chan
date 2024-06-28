@@ -57,7 +57,9 @@ class WhitenekoModule(commands.Cog):
         """
         await ctx.message.delete()
         await user.send(text)
-
+        
+    @commands.guild_only()
+    @commands.has_permissions(kick_members=True, ban_members=True)
     @commands.command(name='operation')
     async def operation(self, ctx, user: discord.Member):
         """Counts down and kicks a specified user from the server.
